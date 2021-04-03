@@ -1,0 +1,3 @@
+[submodule "ConsoleParameters"]
+	path = ConsoleParameters
+	url = ssh://martin@mwohlauer.d-n-s.name/git-repos/ConsoleParameters
