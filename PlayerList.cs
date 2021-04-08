@@ -41,7 +41,209 @@ namespace EfStats {
 
         public List<string> getTextDump(bool withBots,
                                         bool noColor) {
-            return filteredPlayerStrings(withBots, noColor);
+            string playerHeading = "Player";
+            string isBotHeading = "Is a Bot";
+            string eloHeading = "ELO";
+            string efficiencyHeading = "Efficiency";
+            string ratioHeading = "Ratio";
+            string killsHeading = "Kills";
+            string deathsHeading = "Deaths";
+            string weaponsUsedHeading = "Weapons Used";
+            string weaponsEnduredHeading = "Weapons Endured";
+            string weaponsMaxUsedHeading = "Weapon Used Most";
+            string weaponsMaxEnduredHeading = "Weapon Endured Most";
+            string attackersHeading = "Attackers";
+            string victimsHeading = "Victims";
+            string worstEnemyHeading = "Worst Enemy";
+            string easiestTargetHeading = "Easiest Target";
+
+            uint maxNicks         = (uint)playerHeading.Length;
+            uint maxIsBot         = (uint)isBotHeading.Length; // "yes" is the most broad text that can happen so won't need correction
+            uint maxElos          = (uint)eloHeading.Length;
+            uint maxEffs          = (uint)efficiencyHeading.Length;
+            uint maxRatios        = (uint)ratioHeading.Length;
+            uint maxKills         = (uint)killsHeading.Length;
+            uint maxDeaths        = (uint)deathsHeading.Length;
+            uint maxWeapons       = (uint)weaponsUsedHeading.Length;
+            uint maxEndurances    = (uint)weaponsEnduredHeading.Length;
+            uint maxMostUsed      = (uint)weaponsMaxUsedHeading.Length;
+            uint maxMostEndured   = (uint)weaponsMaxEnduredHeading.Length;
+            uint maxAttackers     = (uint)attackersHeading.Length;
+            uint maxVictims       = (uint)victimsHeading.Length;
+            uint maxWorstEnemy    = (uint)worstEnemyHeading.Length;
+            uint maxEasiestTarget = (uint)easiestTargetHeading.Length;
+
+            foreach(Player p in list) {
+                maxNicks = increaseIfNeeded(maxNicks, (uint)p.getName().ToString().Length);
+                maxElos = increaseIfNeeded(maxElos, (uint)(Elo.rounded(p.getElo()*10)/10.0).ToString().Length);
+                maxEffs = increaseIfNeeded(maxEffs, (uint)(Elo.rounded(p.getEfficiency()*10)/10.0).ToString().Length);
+                maxRatios = increaseIfNeeded(maxRatios, (uint)(Elo.rounded(p.getRatio()*10)/10.0).ToString().Length);
+                maxKills = increaseIfNeeded(maxKills, (uint)p.getKills().ToString().Length);
+                maxDeaths = increaseIfNeeded(maxDeaths, (uint)p.getDeaths().ToString().Length);
+                uint numberOfDamageDealers = (uint) Weapons.weaponNames.Length;
+                for(uint wCounter = 0; wCounter < numberOfDamageDealers; wCounter++) { // used
+                    if (Weapons.getWeaponIDs().Contains(wCounter)) { // Only Weapons can be used, not World-Stuff
+                        string weaponKill = Weapons.weaponNames[wCounter] + " (" + p.getWeaponUsage(wCounter) + ")";
+                        if (p.getWeaponUsage(wCounter) > 0) maxWeapons = increaseIfNeeded(maxWeapons, (uint)weaponKill.Length);
+                    }
+                }
+                for(uint wCounter = 0; wCounter < numberOfDamageDealers; wCounter++) { // used
+                    string causeOfDeath = Weapons.weaponNames[wCounter] + " (" + p.getWeaponEndured(wCounter) + ")";
+                    if (p.getWeaponEndured(wCounter) > 0) maxEndurances = increaseIfNeeded(maxEndurances, (uint)causeOfDeath.Length);
+                }
+                foreach (Incident attack in p.attacks) {
+                    string attackString = attack.name + " (" + attack.counter + ")";
+                    maxAttackers = increaseIfNeeded(maxAttackers, (uint)attackString.Length);
+                }
+                foreach (Incident victim in p.victims) {
+                    string victimString = victim.name + " (" + victim.counter + ")";
+                    maxVictims = increaseIfNeeded(maxVictims, (uint)victimString.Length);
+                }
+                string worstEnemy = p.getWorstOpponentName() + " (" + p.getWorstOpponentCount() + ")";
+                maxWorstEnemy = increaseIfNeeded(maxWorstEnemy, (uint)worstEnemy.Length);
+                string easiestTarget = p.getEasiestOpponentName() + " (" + p.getEasiestOpponentCount() + ")";
+                maxEasiestTarget = increaseIfNeeded(maxEasiestTarget, (uint)easiestTarget.Length);
+                string mostUsed = Weapons.weaponNames[p.getWeaponUsedMaxId()] + " (" + p.getWeaponUsedMaxCount() + ")";
+                maxMostUsed = increaseIfNeeded(maxMostUsed, (uint)mostUsed.Length);
+                string mostEndured = Weapons.weaponNames[p.getWeaponEnduredMaxId()] + " (" + p.getWeaponEnduredMaxCount() + ")";
+                maxMostEndured = increaseIfNeeded(maxMostEndured, (uint)mostEndured.Length);
+            }
+            //Two spaces inbetween should separate the columns.
+            maxNicks         += 2;
+            maxIsBot         += 2;
+            maxElos          += 2;
+            maxEffs          += 2;
+            maxRatios        += 2;
+            maxKills         += 2;
+            maxDeaths        += 2;
+            maxWeapons       += 2;
+            maxEndurances    += 2;
+            maxMostUsed      += 2;
+            maxMostEndured   += 2;
+            maxAttackers     += 2;
+            maxVictims       += 2;
+            maxWorstEnemy    += 2;
+            maxEasiestTarget += 2;
+
+            List<string> lines = new List<string>();
+            string line =
+                playerHeading.PadRight((int)maxNicks)
+                + isBotHeading.PadRight((int)maxIsBot)
+                + eloHeading.PadRight((int)maxElos)
+                + efficiencyHeading.PadRight((int)maxEffs)
+                + ratioHeading.PadRight((int)maxRatios)
+                + killsHeading.PadRight((int)maxKills)
+                + deathsHeading.PadRight((int)maxDeaths)
+                + weaponsUsedHeading.PadRight((int)maxWeapons)
+                + weaponsEnduredHeading.PadRight((int)maxEndurances)
+                + weaponsMaxUsedHeading.PadRight((int)maxMostUsed)
+                + weaponsMaxEnduredHeading.PadRight((int)maxMostEndured)
+                + attackersHeading.PadRight((int)maxAttackers)
+                + victimsHeading.PadRight((int)maxVictims)
+                + worstEnemyHeading.PadRight((int)maxWorstEnemy)
+                + easiestTargetHeading.PadRight((int)maxEasiestTarget);
+
+            lines.Add(line.Trim());
+            foreach(Player p in list) {
+                List <string> weaponsUsed = new List<string>();
+                List <string> weaponsEndured = new List<string>();
+                List <string> Attackers = new List<string>();
+                List <string> Victims = new List<string>();
+
+                for (uint counter = 0; counter < p.getWeaponsEndured().Length; counter++) {
+                    string weaponsName = Weapons.weaponNames[counter];
+                    if (p.getWeaponsUsage()[counter] > 0) weaponsUsed.Add(weaponsName + " (" + p.getWeaponsUsage()[counter] + ")");
+                    if (p.getWeaponsEndured()[counter] > 0) weaponsEndured.Add(weaponsName + " (" + p.getWeaponsEndured()[counter] + ")");
+                }
+
+                foreach(Incident i in p.victims)   Victims.Add(i.name + " (" + i.counter + ")");
+                foreach(Incident i in p.attacks) Attackers.Add(i.name + " (" + i.counter + ")");
+
+                line = p.getName().PadRight((int) maxNicks);
+                if (p.getIsBot()) {
+                    line += ("yes").PadRight((int) maxIsBot);
+                }
+                else {
+                    line += ("no").PadRight((int) maxIsBot);
+                }
+                line += (Elo.rounded(p.getElo()*10)/10.0).ToString().PadRight((int)maxElos) +
+                    (Elo.rounded(p.getEfficiency()*10)/10.0).ToString().PadRight((int)maxEffs) +
+                    (Elo.rounded(p.getRatio()*10)/10.0).ToString().PadRight((int)maxRatios) +
+                    p.getKills().ToString().PadRight((int)maxKills) +
+                    p.getDeaths().ToString().PadRight((int)maxDeaths);
+                string weaponUsed = "";
+                if (weaponsUsed.Count > 0) {
+                    weaponUsed = weaponsUsed.ElementAt(0);
+                    weaponsUsed.RemoveAt(0);
+                }
+                line += weaponUsed.PadRight((int) maxWeapons);
+                string weaponEndured = "";
+                if (weaponsEndured.Count > 0) {
+                    weaponEndured = weaponsEndured.ElementAt(0);
+                    weaponsEndured.RemoveAt(0);
+                }
+                line += weaponEndured.PadRight((int) maxEndurances);
+                line += (Weapons.weaponNames[p.getWeaponUsedMaxId()] + " (" + p.getWeaponUsedMaxCount() + ")").PadRight((int) maxMostUsed) +
+                    (Weapons.weaponNames[p.getWeaponEnduredMaxId()] + " (" + p.getWeaponEnduredMaxCount() + ")").PadRight((int) maxMostEndured);
+
+                string attacker = "";
+                if (Attackers.Count > 0) {
+                    attacker = Attackers.ElementAt(0);
+                    Attackers.RemoveAt(0);
+                }
+                line += attacker.PadRight((int) maxAttackers);
+
+                string victim = "";
+                if (Victims.Count > 0) {
+                    victim = Victims.ElementAt(0);
+                    Victims.RemoveAt(0);
+                }
+                line += victim.PadRight((int) maxVictims);
+
+                line += (p.getWorstOpponentName() + " (" + p.getWorstOpponentCount() + ")").PadRight((int) maxWorstEnemy) +
+                    (p.getEasiestOpponentName() + " (" + p.getEasiestOpponentCount() + ")").PadRight((int) maxEasiestTarget);
+                lines.Add(line.Trim());
+                while (   weaponsUsed.Count > 0
+                       || weaponsEndured.Count > 0
+                       || Attackers.Count > 0
+                       || Victims.Count > 0) {
+                    line = "".PadRight((int)(maxNicks + maxIsBot + maxElos + maxEffs + maxRatios + maxKills + maxDeaths));
+
+                    weaponUsed = "";
+                    if (weaponsUsed.Count > 0) {
+                        weaponUsed = weaponsUsed.ElementAt(0);
+                        weaponsUsed.RemoveAt(0);
+                    }
+                    line += weaponUsed.PadRight((int) maxWeapons);
+                    weaponEndured = "";
+                    if (weaponsEndured.Count > 0) {
+                        weaponEndured = weaponsEndured.ElementAt(0);
+                        weaponsEndured.RemoveAt(0);
+                    }
+                    line += weaponEndured.PadRight((int) maxWeapons);
+
+                    line += "".PadRight((int)(maxMostUsed + maxMostEndured));
+
+                    attacker = "";
+                    if (Attackers.Count > 0) {
+                        attacker = Attackers.ElementAt(0);
+                        Attackers.RemoveAt(0);
+                    }
+
+                    line += attacker.PadRight((int)maxAttackers);
+
+                    victim = "";
+                    if (Victims.Count > 0) {
+                        victim = Victims.ElementAt(0);
+                        Victims.RemoveAt(0);
+                    }
+
+                    line += victim;
+
+                    lines.Add(line);
+                }
+            }
+            return lines;
         }
 
         public void dumpToText(bool withBots,
@@ -67,14 +269,13 @@ namespace EfStats {
             cells.Add("Kills");
             cells.Add("Deaths");
             uint numberOfDamageDealers = (uint) Weapons.weaponNames.Length;
-            for(uint wCounter = 0; wCounter < numberOfDamageDealers; wCounter++) {//used
-                if (Weapons.getWeaponIDs().Contains(wCounter)) { //Only Weapons can be used, not World-Stuff
+            for(uint wCounter = 0; wCounter < numberOfDamageDealers; wCounter++) { // used
+                if (Weapons.getWeaponIDs().Contains(wCounter)) { // Only Weapons can be used, not World-Stuff
                     string weaponKill = "Kills with " + Weapons.weaponNames[wCounter];
                     cells.Add(weaponKill);
                 }
-
             }
-            for(uint wCounter = 0; wCounter < numberOfDamageDealers; wCounter++) {//used
+            for(uint wCounter = 0; wCounter < numberOfDamageDealers; wCounter++) { // endured
                 cells.Add("Killed by " + Weapons.weaponNames[wCounter]);
             }
             cells.Add("Most often Used Weapon");
@@ -214,5 +415,17 @@ namespace EfStats {
                          List<string> stringList) {
             File.WriteAllLines(filename, stringList.ToArray());
         }
+
+        public static uint getMaxWidth(List<string> strings) {
+            uint maxLength = 0;
+            foreach(string s in strings) if (maxLength < (uint) s.Length) maxLength = (uint) s.Length;
+            return maxLength;
+        }
+
+        private static uint increaseIfNeeded(uint value, uint comparison) {
+            if (value < comparison) return comparison;
+            return value;
+        }
+
     }
 }

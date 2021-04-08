@@ -129,7 +129,9 @@ namespace EfStats {
                     && ((Player)otherGuy).getName().Equals(this.nickName));
         }
 
-        public static int Compare(Player a, Player b, string criterion) {
+        public static int Compare(Player a,
+                                  Player b,
+                                  string criterion) {
             double aval = 0;
             double bval = 0;
             switch (criterion) {

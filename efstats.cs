@@ -254,7 +254,7 @@ namespace EfStats {
                     }
                 }
                 else {
-                    parseErrorLines.Add("Line to short: " + line);
+                    parseErrorLines.Add("Line too short: " + line);
                 }
             }
             if (minEncounters > 0) list.removeBeginners(minEncounters);
