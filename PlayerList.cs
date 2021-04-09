@@ -338,6 +338,7 @@ body
     border-bottom-right-radius:15px;
     padding-left: 5px;
     padding-right: 5px;
+    cursor: pointer;
 }
 table
 {
