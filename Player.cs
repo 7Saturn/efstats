@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic; // Lists
 using System.Text.RegularExpressions; // Regex.Replace
 using Newtonsoft.Json; //From Newtonsoft.Json.dll
+using System.Globalization;
 
 namespace EfStats {
     public class Player {
@@ -100,14 +101,26 @@ namespace EfStats {
             return elo;
         }
 
+        public string getEloString() {
+            return Elo.rounded(getElo()).ToString();
+        }
+
         public double getRatio() {
             if (deaths == 0) return kills;
             return (double)kills / (double)deaths;
         }
 
+        public string getRatioString() {
+            return (Elo.rounded(getEfficiency()*100)/100.0).ToString("F2", CultureInfo.CreateSpecificCulture("en-GB"));
+        }
+
         public double getEfficiency() {
             if ((kills + deaths) == 0) return 0;
             return (double)kills / ((double)kills + (double)deaths);
+        }
+
+        public string getEfficiencyString() {
+            return (Elo.rounded(getRatio()*100)/100.0).ToString("F2", CultureInfo.CreateSpecificCulture("en-GB"));
         }
 
         public override string ToString() {
@@ -299,6 +312,5 @@ namespace EfStats {
             Incident i = getEasiestIncident();
             return i.counter;
         }
-
     }
 }

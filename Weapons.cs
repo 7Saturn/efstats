@@ -29,8 +29,8 @@ namespace EfStats {
             "Alt. Grenade Launcher",                // 24 MOD_GRENADE_ALT          = WP_GRENADE_LAUNCHER
             "Grenade Launcher Splash Damage",       // 25 MOD_GRENADE_SPLASH       = WP_GRENADE_LAUNCHER
             "Alt. Grenade Launcher Splash Damage",  // 26 MOD_GRENADE_ALT_SPLASH   = WP_GRENADE_LAUNCHER
-            "Tetrion Disruptor",                    // 27 MOD_TETRYON              = WP_TETRION_DISRUPTOR
-            "Alt. Tetrion Disruptor",               // 28 MOD_TETRYON_ALT          = WP_TETRION_DISRUPTOR
+            "Tetryon Disruptor",                    // 27 MOD_TETRYON              = WP_TETRION_DISRUPTOR
+            "Alt. Tetryon Disruptor",               // 28 MOD_TETRYON_ALT          = WP_TETRION_DISRUPTOR
             "Arc Welder",                           // 29 MOD_DREADNOUGHT          = WP_DREADNOUGHT
             "Alt. Arc Welder",                      // 30 MOD_DREADNOUGHT_ALT      = WP_DREADNOUGHT
             "Photon Burst",                         // 31 MOD_QUANTUM              = WP_QUANTUM_BURST

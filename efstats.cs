@@ -39,13 +39,13 @@ namespace EfStats {
                                                                                0,
                                                                                false,
                                                                                "By default no players with the nick names 'Redshirt', 'RedShirt' or 'UnnamedPlayer' are included in the analysis. Those are the standard nick names that the game uses when the player did not change his name. This means, various players use this nick, which will distort the results. Setting this switch includes them anyways."),
-                                                       new ParameterDefinition("statssave",
+                                                       /* new ParameterDefinition("statssave",
                                                                                ParameterType.String,
                                                                                false,
                                                                                1,
                                                                                1,
                                                                                true,
-                                                                               "Use this parameter to provide a save file name. By default, this program analyses the data from the entire log file and writes the results to the output file. If you require an analysis of a log file being continuosly extended (e. g. the live log file of a running EF server) this filename is used to load the analysis results from the last analysis run, and continue where the last analysis left off. After the analysis the save file will be updated with the now added new analysis data. If there exists no analysis file under this name it will be created after analysis and the log analysis starts from the beginning of the file."),
+                                                                               "Use this parameter to provide a save file name. By default, this program analyses the data from the entire log file and writes the results to the output file. If you require an analysis of a log file being continuosly extended (e. g. the live log file of a running EF server) this filename is used to load the analysis results from the last analysis run, and continue where the last analysis left off. After the analysis the save file will be updated with the now added new analysis data. If there exists no analysis file under this name it will be created after analysis and the log analysis starts from the beginning of the file."),*/
                                                        new ParameterDefinition("outformat",
                                                                                ParameterType.String,
                                                                                false,
@@ -270,7 +270,7 @@ namespace EfStats {
                                                    false);
                         break;
                     case "html":
-                        Console.WriteLine("HTML is not yet implemented...");
+                        outdata = list.getHTMLDump(withBots);
                         break;
                     case "csv":
                         outdata = list.getCsvDump(withBots,
@@ -293,7 +293,8 @@ namespace EfStats {
                                         outputFileName);
                         break;
                     case "html":
-                        Console.WriteLine("HTML is not yet implemented...");
+                        list.dumpToHTML(withBots,
+                                        outputFileName);
                         break;
                     case "csv":
                         list.dumpToCsv(withBots,

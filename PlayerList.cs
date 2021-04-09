@@ -3,6 +3,7 @@ using System.Linq; // File.ReadLines().First()
 using System.IO;//File
 using System.Collections.Generic;
 using Newtonsoft.Json; //From Newtonsoft.Json.dll
+using System.Text.RegularExpressions; // Split
 
 namespace EfStats {
     public class PlayerList{
@@ -75,9 +76,9 @@ namespace EfStats {
 
             foreach(Player p in list) {
                 maxNicks = increaseIfNeeded(maxNicks, (uint)p.getName().ToString().Length);
-                maxElos = increaseIfNeeded(maxElos, (uint)(Elo.rounded(p.getElo()*10)/10.0).ToString().Length);
-                maxEffs = increaseIfNeeded(maxEffs, (uint)(Elo.rounded(p.getEfficiency()*10)/10.0).ToString().Length);
-                maxRatios = increaseIfNeeded(maxRatios, (uint)(Elo.rounded(p.getRatio()*10)/10.0).ToString().Length);
+                maxElos = increaseIfNeeded(maxElos, (uint)(p.getEloString().Length));
+                maxEffs = increaseIfNeeded(maxEffs, (uint)(p.getRatioString().Length));
+                maxRatios = increaseIfNeeded(maxRatios, (uint)p.getEfficiencyString().Length);
                 maxKills = increaseIfNeeded(maxKills, (uint)p.getKills().ToString().Length);
                 maxDeaths = increaseIfNeeded(maxDeaths, (uint)p.getDeaths().ToString().Length);
                 uint numberOfDamageDealers = (uint) Weapons.weaponNames.Length;
@@ -124,12 +125,12 @@ namespace EfStats {
             maxVictims       += 2;
             maxWorstEnemy    += 2;
             maxEasiestTarget += 2;
+            if (!withBots) maxIsBot = 0;
 
             List<string> lines = new List<string>();
-            string line =
-                playerHeading.PadRight((int)maxNicks)
-                + isBotHeading.PadRight((int)maxIsBot)
-                + eloHeading.PadRight((int)maxElos)
+            string line = playerHeading.PadRight((int)maxNicks);
+            if (withBots) line += isBotHeading.PadRight((int)maxIsBot);
+            line += eloHeading.PadRight((int)maxElos)
                 + efficiencyHeading.PadRight((int)maxEffs)
                 + ratioHeading.PadRight((int)maxRatios)
                 + killsHeading.PadRight((int)maxKills)
@@ -159,16 +160,20 @@ namespace EfStats {
                 foreach(Incident i in p.victims)   Victims.Add(i.name + " (" + i.counter + ")");
                 foreach(Incident i in p.attacks) Attackers.Add(i.name + " (" + i.counter + ")");
 
-                line = p.getName().PadRight((int) maxNicks);
-                if (p.getIsBot()) {
-                    line += ("yes").PadRight((int) maxIsBot);
+                string playerName = p.getName();
+                if (noColor) playerName = Player.noColors(playerName);
+                line = playerName.PadRight((int) maxNicks);
+                if (withBots) {
+                    if (p.getIsBot()) {
+                        line += ("yes").PadRight((int) maxIsBot);
+                    }
+                    else {
+                        line += ("no").PadRight((int) maxIsBot);
+                    }
                 }
-                else {
-                    line += ("no").PadRight((int) maxIsBot);
-                }
-                line += (Elo.rounded(p.getElo()*10)/10.0).ToString().PadRight((int)maxElos) +
-                    (Elo.rounded(p.getEfficiency()*10)/10.0).ToString().PadRight((int)maxEffs) +
-                    (Elo.rounded(p.getRatio()*10)/10.0).ToString().PadRight((int)maxRatios) +
+                line += p.getEloString().PadRight((int)maxElos) +
+                    p.getEfficiencyString().PadRight((int)maxEffs) +
+                    p.getRatioString().PadRight((int)maxRatios) +
                     p.getKills().ToString().PadRight((int)maxKills) +
                     p.getDeaths().ToString().PadRight((int)maxDeaths);
                 string weaponUsed = "";
@@ -246,6 +251,228 @@ namespace EfStats {
             return lines;
         }
 
+        public List<string> getHTMLDump(bool withBots) {
+            //Here, we treat colors differently, as in HTML we /can/ set colors, ans so we should always!
+            List<string> lines = new List<string>();
+            lines.Add("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">");
+            lines.Add("<html>");
+            lines.Add("<head>");
+            lines.Add("<meta http-equiv=\"CONTENT-TYPE\" content=\"text/html; charset=utf8\">");
+            lines.Add("<title>Star Trek: Voyager Elite Force Stats dump</title>");
+            lines.Add(@"    <script>
+      function alter_arrows (element_id) {
+          if (document.getElementById(element_id).innerHTML == '&lt;&gt;')
+          {
+              document.getElementById(element_id).innerHTML = '><';
+              document.getElementById(element_id).title = 'Click to hide Details';
+          }
+          else
+          {
+              document.getElementById(element_id).innerHTML = '<>';
+              document.getElementById(element_id).title = 'Click to show Details';
+          }
+      }
+      function switch_elements(class_name) {
+          var x = document.getElementsByClassName(class_name);
+          for (i = 0; i < x.length; i++) {
+              if (x[i].style.display == 'none')
+              {
+                  x[i].style.display = 'table-cell';
+              }
+              else
+              {
+                  x[i].style.display = 'none'
+              }
+          }
+      }
+    </script>");
+            lines.Add(@"<style>
+body
+{
+    background:#000000;
+    color:#8E72BA;
+    font-family: sans;
+    overflow: auto;
+}
+.white
+{
+    color:#FFFFFF;
+}
+.black
+{
+    color:#000000;
+}
+.red
+{
+    color:#FF0000;
+}
+.green
+{
+    color:#00FF00;
+}
+.yellow
+{
+    color:#FFFF00;
+}
+.blue
+{
+    color:#0000FF;
+}
+.cyan
+{
+    color:#00FFFF;
+}
+.magenta
+{
+    color:#FF00FF;
+}
+.button
+{
+    background: #5F395D;
+    color: #8E72BA;
+    font-weight: bold;
+    font-family: sans;
+    border-top-left-radius:15px;
+    border-top-right-radius:15px;
+    border-bottom-left-radius:15px;
+    border-bottom-right-radius:15px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+table
+{
+    table-layout:fixed;
+    border-collapse: collapse;
+    border-color: #8E72BA;
+}
+td
+{
+    border-width: 2px;
+    padding: 3px;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-color: #8E72BA;
+}
+.numbercell
+{
+    text-align: right;
+}
+th
+{
+    border-width: 2px;
+    padding: 3px;
+    white-space: nowrap;
+    border-color: #8E72BA;
+    background: #8E72BA;
+    color: #5F395D;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+tr:nth-child(even)
+{
+    background-color: #5F395D;
+    border-color: #8E72BA;
+}
+tr:nth-child(odd)
+{
+    background-color: #B04C0C;
+    color: #EC844A;
+    border-color: #8E72BA;
+}
+</style>");
+            lines.Add("<body>");
+            lines.Add("<table border = 1>");
+            //Table
+            string line = "<tr><th>Rank</th><th>Player</th>";
+            if (withBots) line += "<th>Is a Bot</th>";
+            line += "<th>ELO</th><th>Efficiency</th><th>Ratio</th><th>Kills</th><th>Deaths</th><th>Weapon Used Most</th><th>Weapon Endured Most <span class=\"button\" id=\"initial1\" onclick=\"switch_elements('switchable1'); alter_arrows('initial1');\" title=\"Click to show Details\">&lt;&gt;</span></th><th class=\"switchable1\">Weapons Used</th><th class=\"switchable1\">Weapons Endured</th><th>Worst Enemy</th><th>Easiest Target <span class=\"button\" id=\"initial2\" onclick=\"switch_elements('switchable2'); alter_arrows('initial2');\" title=\"Click to show Details\">&lt;&gt;</span></th><th class=\"switchable2\">Attackers</th><th class=\"switchable2\">Victims</th></tr>";
+            lines.Add(line);
+            uint rankCounter = 0;
+            foreach(Player p in list) {
+                rankCounter++;
+                line = "<td class=\"numbercell\">" + rankCounter + "</td>";
+                line += "<td>" + nameAsHTML(p.getName()) + "</td>";
+                if (withBots) {
+                    if (p.getIsBot()) {
+                        line += ("<td>yes</td>");
+                    }
+                    else {
+                        line += ("<td>no</td>");
+                    }
+                }
+                line += "<td class=\"numbercell\">" + p.getEloString() + "</td>"
+                    + "<td class=\"numbercell\">" + p.getEfficiencyString() + "</td>"
+                    + "<td class=\"numbercell\">" + p.getRatioString() + "</td>"
+                    + "<td class=\"numbercell\">" + p.getKills() + "</td>"
+                    + "<td class=\"numbercell\">" + p.getDeaths() + "</td>";
+
+                line += "<td>" + Weapons.weaponNames[p.getWeaponUsedMaxId()] + " (" + p.getWeaponUsedMaxCount() + ")</td>";
+                line += "<td>" + Weapons.weaponNames[p.getWeaponEnduredMaxId()] + " (" + p.getWeaponEnduredMaxCount() + ")</td>";
+
+                line += "<td class=\"switchable1\">";
+                uint weaponUsedCounter = sumUintArray(p.weaponsUsage);
+                if (weaponUsedCounter > 0) {
+                    line += "<ul>";
+                    for (uint counter = 0; counter < p.weaponsUsage.Length; counter++) {
+                        uint weaponCount = p.weaponsUsage[counter];
+                        if (weaponCount > 0) {
+                            string weaponName = Weapons.weaponNames[counter];
+                            line += "<li>" + weaponName + " (" + weaponCount + ")</li>";
+                        }
+                    }
+                    line += "</ul>";
+                }
+                line += "</td>";
+                line += "<td class=\"switchable1\">";
+                uint weaponEnduredCounter = sumUintArray(p.weaponsEndured);
+                if (weaponEnduredCounter > 0) {
+                    line += "<ul>";
+                    for (uint counter = 0; counter < p.weaponsEndured.Length; counter++) {
+                        uint weaponCount = p.weaponsEndured[counter];
+                        if (weaponCount > 0) {
+                            string weaponName = Weapons.weaponNames[counter];
+                            line += "<li>" + weaponName + " (" + weaponCount + ")</li>";
+                        }
+                    }
+                    line += "</ul>";
+                }
+                line += "</td>";
+                line += "<td>" + nameAsHTML(p.getWorstOpponentName()) + " (" + p.getWorstOpponentCount() + ")</td>";
+                line += "<td>" + nameAsHTML(p.getEasiestOpponentName()) + " (" + p.getEasiestOpponentCount() + ")</td>";
+                //Hier müssen noch die Nicks gefärbt werden!
+                line += "<td class=\"switchable2\">";
+                if (p.attacks.Count > 0) {
+                    line += "<ul>";
+                    foreach(Incident i in p.attacks) line += "<li>" + nameAsHTML(i.name) + " (" + i.counter + ")</li>";
+                    line += "</ul>";
+                }
+                line += "</td><td class=\"switchable2\">";
+                if (p.victims.Count > 0) {
+                    line += "<ul>";
+                    foreach(Incident i in p.victims) line += "<li>" + nameAsHTML(i.name) + " (" + i.counter + ")</li>";
+                    line += "</ul>";
+                }
+                line += "</td></tr>";
+            lines.Add(line);
+        }
+
+
+            lines.Add("</table>");
+            lines.Add("<script>switch_elements('switchable1');switch_elements('switchable2');</script>");
+            lines.Add("</body>");
+            lines.Add("</head>");
+            lines.Add("</html>");
+            return lines;
+        }
+
+        public void dumpToHTML(bool withBots,
+                               string filename) {
+            writeToFile(filename,
+                        getHTMLDump(withBots));
+        }
+
         public void dumpToText(bool withBots,
                                bool noColor,
                                string filename) {
@@ -294,9 +521,9 @@ namespace EfStats {
                     cells.Add(rankCounter.ToString());
                     cells.Add(p.getName());
                     if (withBots) cells.Add(p.getIsBot().ToString());
-                    cells.Add(Elo.rounded(p.getElo()).ToString());
-                    cells.Add((Elo.rounded(p.getEfficiency() * 10)/10.0).ToString());
-                    cells.Add((Elo.rounded(p.getRatio() * 10)/10.0).ToString());
+                    cells.Add(p.getEloString());
+                    cells.Add(p.getEfficiencyString());
+                    cells.Add(p.getRatioString());
                     cells.Add(p.getKills().ToString());
                     cells.Add(p.getDeaths().ToString());
                     for(uint wCounter = 0; wCounter < numberOfDamageDealers; wCounter++) {// used on others, damage done by the map is not of interest, as it cannot come from the player.
@@ -427,5 +654,35 @@ namespace EfStats {
             return value;
         }
 
+        private uint sumUintArray(uint[] uints) {
+            uint uintSum = 0;
+            for(uint counter = 0; counter < uints.Length; counter++) {
+                uintSum += uints[counter];
+            }
+            return uintSum;
+        }
+
+        private string deHTMLized(string input) {
+            input = Regex.Replace(input, "&", "&amp;");
+            input = Regex.Replace(input, "<", "&lt;");
+            input = Regex.Replace(input, ">", "&gt;");
+            return input;
+        }
+
+        public string nameAsHTML(string nick) {
+            string tempNick = "<span class=\"white\">" + deHTMLized(nick); // Standard color
+            tempNick = Regex.Replace(tempNick, "\\^0", "</span><span class=\"black\">");
+            tempNick = Regex.Replace(tempNick, "\\^1", "</span><span class=\"red\">");
+            tempNick = Regex.Replace(tempNick, "\\^2", "</span><span class=\"green\">");
+            tempNick = Regex.Replace(tempNick, "\\^3", "</span><span class=\"yellow\">");
+            tempNick = Regex.Replace(tempNick, "\\^4", "</span><span class=\"blue\">");
+            tempNick = Regex.Replace(tempNick, "\\^5", "</span><span class=\"cyan\">");
+            tempNick = Regex.Replace(tempNick, "\\^6", "</span><span class=\"magenta\">");
+            tempNick = Regex.Replace(tempNick, "\\^7", "</span><span class=\"white\">");
+            tempNick = Regex.Replace(tempNick, "\\^8", "</span><span class=\"black\">");
+            tempNick = Regex.Replace(tempNick, "\\^9", "</span><span class=\"red\">");
+            if (!tempNick.EndsWith("</span>")) tempNick += "</span>";
+            return tempNick;
+        }
     }
 }
