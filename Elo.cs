@@ -4,29 +4,35 @@ namespace EfStats {
     public static class Elo {
         /*These starting values are a result of empiric research.
           They just seem to work rather well. ELO scores of different players seem
-          to be far enough from each other while not spreading the values too much.
-        */
+          to be far enough from each other while not spreading the values too much. */
         public static uint startValue = 15000;
         public static uint skillDifferenceScale = 4000;
         public static uint valueChangeScale = 300;
-        public static double getEloDiff(Player attacker, Player victim) {
+        public static uint getEloDiff(Player attacker,
+                                      Player victim) {
             double difference;
+            difference = 1 / (1 + Math.Pow(10, ((attacker.getElo() - victim.getElo()) / skillDifferenceScale)));
             if (attacker.getElo() >= victim.getElo()) {
-                difference = valueChangeScale * (1 / (1 + Math.Pow(10, ((attacker.getElo() - victim.getElo()) / skillDifferenceScale))));
+                difference = valueChangeScale * difference;
             }
             else {
-                difference = valueChangeScale * (1 - (1 / (1 + Math.Pow(10, ((attacker.getElo() - victim.getElo()) / skillDifferenceScale)))));
+                difference = valueChangeScale * (1 - difference);
             }
-            return difference;
+            difference *= victim.getElo() / startValue; //Slows down when closing to 0 for the victim, up to the point where there won't be any difference. Do not beat a player to death (=negative score)!
+            return (uint) rounded(difference);
         }
 
-        public static void updateEloScores(Player attacker, Player victim) {
-            double difference = getEloDiff(attacker, victim);
+        public static void updateEloScores(Player attacker,
+                                           Player victim) {
+            uint difference = getEloDiff(attacker,
+                                         victim);
             attacker.setElo(attacker.getElo() + difference);
             victim.setElo(victim.getElo() - difference);
         }
 
-        public static string EloReport(List<Player> allPlayers, List<Encounter> allEncounters, bool onlyNumbers) {
+        public static string EloReport(List<Player> allPlayers,
+                                       List<Encounter> allEncounters,
+                                       bool onlyNumbers) {
             string report = "";
             if (onlyNumbers) report += "attacker\tvictim\tprobability\tencounters\n";
             foreach(Player attacker in allPlayers) {
