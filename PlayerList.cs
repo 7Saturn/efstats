@@ -42,17 +42,17 @@ namespace EfStats {
 
         public List<string> getTextDump(bool withBots,
                                         bool noColor) {
-            string playerHeading = "Player";
+            string playerHeading = "Name";
             string isBotHeading = "Is a Bot";
             string eloHeading = "ELO";
             string efficiencyHeading = "Efficiency";
             string ratioHeading = "Ratio";
-            string killsHeading = "Kills";
-            string deathsHeading = "Deaths";
+            string killsHeading = "Score";
+            string deathsHeading = "Eliminated";
             string weaponsUsedHeading = "Weapons Used";
             string weaponsEnduredHeading = "Weapons Endured";
-            string weaponsMaxUsedHeading = "Weapon Used Most";
-            string weaponsMaxEnduredHeading = "Weapon Endured Most";
+            string weaponsMaxUsedHeading = "Favorite Weapon";
+            string weaponsMaxEnduredHeading = "Worst Weapon";
             string attackersHeading = "Attackers";
             string victimsHeading = "Victims";
             string worstEnemyHeading = "Worst Enemy";
@@ -260,16 +260,16 @@ namespace EfStats {
             lines.Add("<meta http-equiv=\"CONTENT-TYPE\" content=\"text/html; charset=utf8\">");
             lines.Add("<title>Star Trek: Voyager Elite Force Stats dump</title>");
             lines.Add(@"    <script>
-      function alter_arrows (element_id) {
+      function alter_arrows (element_id, replacement) {
           if (document.getElementById(element_id).innerHTML == '&lt;&gt;')
           {
               document.getElementById(element_id).innerHTML = '><';
-              document.getElementById(element_id).title = 'Click to hide Details';
+              document.getElementById(element_id).title = 'Click to hide ' + replacement;
           }
           else
           {
               document.getElementById(element_id).innerHTML = '<>';
-              document.getElementById(element_id).title = 'Click to show Details';
+              document.getElementById(element_id).title = 'Click to show ' + replacement;
           }
       }
       function switch_elements(class_name) {
@@ -326,10 +326,14 @@ body
 {
     color:#FF00FF;
 }
+.ocher
+{
+    color: #FFEA94;
+}
 .button
 {
-    background: #5F395D;
-    color: #8E72BA;
+    background: #8E72BA;
+    color: #000000;
     font-weight: bold;
     font-family: sans;
     border-top-left-radius:15px;
@@ -344,7 +348,9 @@ table
 {
     table-layout:fixed;
     border-collapse: collapse;
-    border-color: #8E72BA;
+    border-color: #BC7200;
+    border: none;
+    color: #FFFFFF;
 }
 td
 {
@@ -352,7 +358,7 @@ td
     padding: 3px;
     white-space: nowrap;
     vertical-align: baseline;
-    border-color: #8E72BA;
+    border-width: 0px;
 }
 .numbercell
 {
@@ -360,12 +366,11 @@ td
 }
 th
 {
-    border-width: 2px;
+    border-width: 0px;
     padding: 3px;
     white-space: nowrap;
-    border-color: #8E72BA;
-    background: #8E72BA;
-    color: #5F395D;
+    background: #BC7200;
+    color: #160C00;
     position: -webkit-sticky;
     position: sticky;
     top: 0;
@@ -373,44 +378,89 @@ th
 }
 tr:nth-child(even)
 {
-    background-color: #5F395D;
-    border-color: #8E72BA;
+    background-color: #400000;
 }
 tr:nth-child(odd)
 {
-    background-color: #B04C0C;
-    color: #EC844A;
-    border-color: #8E72BA;
+    background-color: #000040;
+}
+.leftborder
+{
+    background: #BC7200;
+}
+.upperleftcorner
+{
+    background: #BC7200;
+    display: inline-block;
+    width: 1.5em;
+    border-color: #BC7200;
+}
+.rightcorner
+{
+    border-top-right-radius:15px;
+    border-bottom-right-radius:15px;
+    background: #BC7200;
+    display: inline-block;
+    width: 1.5em;
+    height: 30px;
+    border-color: #BC7200;
+}
+.rightcornercontainer
+{
+    background: #000000;
+    padding: 0px;
+    border-left-width: 4px;
+}
+.lowerleftcornercontainer
+{
+    background: #000000;
+    padding: 0px;
+    border-width: 0px;
+}
+.lowerleftcorner
+{
+    border-bottom-left-radius:10px;
+    background: #BC7200;
+    display: inline-block;
+    width: 100%;
+    height: 30px;
+    border-color: #BC7200;
+}
+.centered
+{
+    text-align: center;
 }
 </style>");
             lines.Add("<body>");
             lines.Add("<table border = 1>");
             //Table
-            string line = "<tr><th>Rank</th><th>Player</th>";
-            if (withBots) line += "<th>Is a Bot</th>";
-            line += "<th>ELO</th><th>Efficiency</th><th>Ratio</th><th>Kills</th><th>Deaths</th><th>Weapon Used Most</th><th>Weapon Endured Most <span class=\"button\" id=\"initial1\" onclick=\"switch_elements('switchable1'); alter_arrows('initial1');\" title=\"Click to show Details\">&lt;&gt;</span></th><th class=\"switchable1\">Weapons Used</th><th class=\"switchable1\">Weapons Endured</th><th>Worst Enemy</th><th>Easiest Target <span class=\"button\" id=\"initial2\" onclick=\"switch_elements('switchable2'); alter_arrows('initial2');\" title=\"Click to show Details\">&lt;&gt;</span></th><th class=\"switchable2\">Attackers</th><th class=\"switchable2\">Victims</th></tr>";
+            string line = "<tr><th><span class=\"upperleftcorner\"></span></th><th title=\"Ranking of Players\">Rank</th><th title=\"The Name the Player Gave Himself\">Name</th>";
+            if (withBots) line += "<th title=\"Is this Player Actually a Bot?\">Is a Bot</th>";
+            line += "<th title=\"Skill Value Considering the Different Skill Levels of Both Opponents When Counting a Frag\">ELO</th><th title=\"Equals Score Devided by the Sum of Score and Eliminated\">Efficiency</th><th title=\"Score Devided by Eliminated\">Ratio</th><th title=\"Achieved Frags\">Score</th><th title=\"Times the Player Suicided, Got Fragged or Had an Accident\">Eliminated</th><th title=\"The Player did the Highest Number of Frags With this Weapon\">Favorite Weapon</th><th title=\"The Player got Fragged the Highest Number of Times With This Weapon\">Worst Weapon <span class=\"button\" id=\"initial1\" onclick=\"switch_elements('switchable1'); alter_arrows('initial1', 'Weapons Report');\" title=\"Click to show Weapons Report\">&lt;&gt;</span></th><th title=\"How Often did the Player Frag with the Different Weapons?\" class=\"switchable1\">Weapons Used</th><th title=\"How Often did the Player get Fragged by the Different Weapons?\" class=\"switchable1\">Weapons Endured</th><th title=\"The Opponent that Fragged this Player Most\">Worst Enemy</th><th title=\"The Opponent this Player Fragged the Most\">Easiest Target <span class=\"button\" id=\"initial2\" onclick=\"switch_elements('switchable2'); alter_arrows('initial2', 'Opponent Report');\" title=\"Click to show Opponent Report\">&lt;&gt;</span></th><th title=\"How Often did Other Players Frag this Player?\" class=\"switchable2\">Attackers</th><th title=\"How Often did This Player Frag Other Players?\" class=\"switchable2\">Victims</th><th class=\"rightcornercontainer\"><span class=\"rightcorner\"></span></th></tr>";
             lines.Add(line);
             uint rankCounter = 0;
             foreach(Player p in list) {
                 rankCounter++;
-                line = "<td class=\"numbercell\">" + rankCounter + "</td>";
+                line = "<tr><td class=\"leftborder\"></td><td class=\"numbercell\">" + rankCounter + "</td>";
                 line += "<td>" + nameAsHTML(p.getName()) + "</td>";
                 if (withBots) {
+                    line += "<td class=\"centered ocher\">";
                     if (p.getIsBot()) {
-                        line += ("<td>yes</td>");
+                        line += ("yes");
                     }
                     else {
-                        line += ("<td>no</td>");
+                        line += ("no");
                     }
+                    line += "</td>";
                 }
-                line += "<td class=\"numbercell\">" + p.getEloString() + "</td>"
-                    + "<td class=\"numbercell\">" + p.getEfficiencyString() + "</td>"
-                    + "<td class=\"numbercell\">" + p.getRatioString() + "</td>"
-                    + "<td class=\"numbercell\">" + p.getKills() + "</td>"
-                    + "<td class=\"numbercell\">" + p.getDeaths() + "</td>";
+                line += "<td class=\"numbercell ocher\">" + p.getEloString() + "</td>"
+                    + "<td class=\"centered ocher\">" + p.getEfficiencyString() + "</td>"
+                    + "<td class=\"numbercell ocher\">" + p.getRatioString() + "</td>"
+                    + "<td class=\"numbercell yellow\">" + p.getKills() + "</td>"
+                    + "<td class=\"numbercell red\">" + p.getDeaths() + "</td>";
 
-                line += "<td>" + Weapons.weaponNames[p.getWeaponUsedMaxId()] + " (" + p.getWeaponUsedMaxCount() + ")</td>";
-                line += "<td>" + Weapons.weaponNames[p.getWeaponEnduredMaxId()] + " (" + p.getWeaponEnduredMaxCount() + ")</td>";
+                line += "<td class=\"ocher\">" + Weapons.weaponNames[p.getWeaponUsedMaxId()] + " (" + p.getWeaponUsedMaxCount() + ")</td>";
+                line += "<td class=\"ocher\">" + Weapons.weaponNames[p.getWeaponEnduredMaxId()] + " (" + p.getWeaponEnduredMaxCount() + ")</td>";
 
                 line += "<td class=\"switchable1\">";
                 uint weaponUsedCounter = sumUintArray(p.weaponsUsage);
@@ -420,7 +470,7 @@ tr:nth-child(odd)
                         uint weaponCount = p.weaponsUsage[counter];
                         if (weaponCount > 0) {
                             string weaponName = Weapons.weaponNames[counter];
-                            line += "<li>" + weaponName + " (" + weaponCount + ")</li>";
+                            line += "<li class=\"ocher\">" + weaponName + " (" + weaponCount + ")</li>";
                         }
                     }
                     line += "</ul>";
@@ -434,32 +484,39 @@ tr:nth-child(odd)
                         uint weaponCount = p.weaponsEndured[counter];
                         if (weaponCount > 0) {
                             string weaponName = Weapons.weaponNames[counter];
-                            line += "<li>" + weaponName + " (" + weaponCount + ")</li>";
+                            line += "<li class=\"ocher\">" + weaponName + " (" + weaponCount + ")</li>";
                         }
                     }
                     line += "</ul>";
                 }
                 line += "</td>";
-                line += "<td>" + nameAsHTML(p.getWorstOpponentName()) + " (" + p.getWorstOpponentCount() + ")</td>";
-                line += "<td>" + nameAsHTML(p.getEasiestOpponentName()) + " (" + p.getEasiestOpponentCount() + ")</td>";
+                line += "<td class=\"red\">" + Player.noColors(p.getWorstOpponentName()) + " (" + p.getWorstOpponentCount() + ")</td>";
+                line += "<td class=\"ocher\">" + Player.noColors(p.getEasiestOpponentName()) + " (" + p.getEasiestOpponentCount() + ")</td>";
                 //Hier müssen noch die Nicks gefärbt werden!
                 line += "<td class=\"switchable2\">";
                 if (p.attacks.Count > 0) {
                     line += "<ul>";
-                    foreach(Incident i in p.attacks) line += "<li>" + nameAsHTML(i.name) + " (" + i.counter + ")</li>";
+                    foreach(Incident i in p.attacks) line += "<li class=\"ocher\">" + Player.noColors(i.name) + " (" + i.counter + ")</li>";
                     line += "</ul>";
                 }
                 line += "</td><td class=\"switchable2\">";
                 if (p.victims.Count > 0) {
                     line += "<ul>";
-                    foreach(Incident i in p.victims) line += "<li>" + nameAsHTML(i.name) + " (" + i.counter + ")</li>";
+                    foreach(Incident i in p.victims) line += "<li class=\"ocher\">" + Player.noColors(i.name) + " (" + i.counter + ")</li>";
                     line += "</ul>";
                 }
                 line += "</td></tr>";
+                lines.Add(line);
+            }
+            line = "<tr><th class=\"lowerleftcornercontainer\"><span class=\"lowerleftcorner\"></span></th><th colspan=\"";
+            if (withBots) {
+                line += 10;
+            }
+            else {
+                line +=9;
+            }
+            line += "\"></th><th class=\"switchable1\" colspan=\"2\"></th><th colspan=\"2\"><th class=\"switchable2\" colspan=\"2\"></th><th class=\"rightcornercontainer\"><span class=\"rightcorner\"></span></th></tr>";
             lines.Add(line);
-        }
-
-
             lines.Add("</table>");
             lines.Add("<script>switch_elements('switchable1');switch_elements('switchable2');</script>");
             lines.Add("</body>");
