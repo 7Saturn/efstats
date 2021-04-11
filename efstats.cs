@@ -74,6 +74,13 @@ namespace EfStats {
                                                                                0,
                                                                                false,
                                                                                "The optional switch Report Parse Errors (rpe) makes the analyzer report problems with the input log file. By default such problems are not reported."),
+                                                       new ParameterDefinition("eloreport",
+                                                                               ParameterType.Boolean,
+                                                                               false,
+                                                                               0,
+                                                                               0,
+                                                                               false,
+                                                                               "Setting this switch makes efstats additionally print an ELO score probability analysis to STDOUT."),
                                                        new ParameterDefinition("help",
                                                                                ParameterType.Boolean,
                                                                                false,
@@ -131,6 +138,7 @@ namespace EfStats {
             bool withBots = ConsoleParameters.getParameterByName("withbots").getBoolValue();
             bool withUnnamed = ConsoleParameters.getParameterByName("withunnamed").getBoolValue();
             bool reportParseErrors = ConsoleParameters.getParameterByName("rpe").getBoolValue();
+            bool eloreport = ConsoleParameters.getParameterByName("eloreport").getBoolValue();
 
             uint counter = 0;
             uint playerNumber = 1022; //World...
@@ -304,7 +312,7 @@ namespace EfStats {
                     default:
                         break;
                 }
-                //Console.WriteLine(Elo.EloReport(list.getList(), encounters, true));
+                if (eloreport) Console.WriteLine(Elo.EloReport(list.getList(), encounters, true));
             }
             if (reportParseErrors) {
                 Console.WriteLine("Parse-Errors:");
