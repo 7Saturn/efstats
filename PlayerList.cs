@@ -291,7 +291,7 @@ body
 {
     background:#000000;
     color:#8E72BA;
-    font-family: sans;
+    font-family: sans-serif;
     overflow: auto;
 }
 .white
@@ -441,7 +441,7 @@ tr:nth-child(odd)
             uint rankCounter = 0;
             foreach(Player p in list) {
                 rankCounter++;
-                line = "<tr><td class=\"leftborder\"></td><td class=\"numbercell\">" + rankCounter + "</td>";
+                line = "<tr><td class=\"leftborder\"></td><td class=\"numbercell ocher\">" + rankCounter + "</td>";
                 line += "<td>" + nameAsHTML(p.getName()) + "</td>";
                 if (withBots) {
                     line += "<td class=\"centered ocher\">";
