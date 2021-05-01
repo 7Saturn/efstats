@@ -10,3 +10,7 @@ efstats.exe : efstats.cs Player.cs PlayerList.cs PlayerMapping.cs Elo.cs Weapons
 clean:
 	rm -f efstats.exe
 endif
+pull:
+	cd ConsoleParameters; git submodule update --remote --recursive; cd ..
+gitinit:
+	cd ConsoleParameters; git submodule update --init; cd ..
