@@ -6,7 +6,7 @@ using System.Text.RegularExpressions; // Split
 
 namespace EfStats {
     public static class efstats {
-        public static readonly string Version = "0.1";
+        public static readonly string Version = "0.1.1";
         public static List<Encounter> encounters = new List<Encounter>();
         public static void Main(string[] args) {
             ConsoleParameters.InitializeParameters("--",
@@ -17,14 +17,28 @@ namespace EfStats {
                                                                                1,
                                                                                1,
                                                                                true,
-                                                                               "This defines the name of the input file containing the log data to be analyzed. This parameter is required."),
+                                                                               "This defines the name of the input file containing the log data to be analyzed. This parameter is required.",
+                                                                               delegate(Parameter p){
+                                                                                   string filename = p.getStringValues()[0];
+                                                                                   if (!File.Exists(filename)) {
+                                                                                       return "A file with the name '" + filename + "' does not seem to exist.";
+                                                                                   }
+                                                                                   return null;
+                                                                               }),
                                                        new ParameterDefinition("outname",
                                                                                ParameterType.String,
                                                                                false,
                                                                                1,
                                                                                1,
                                                                                true,
-                                                                               "This defines the name of the output file that will contain the analysis results. This parameter is optional. If it is not set, the data is written to STDOUT. Important: Existing files will be overwritten without asking!"),
+                                                                               "This defines the name of the output file that will contain the analysis results. This parameter is optional. If it is not set, the data is written to STDOUT. Important: Existing files will be overwritten without asking!",
+                                                                               delegate(Parameter p){
+                                                                                   string filename = p.getStringValues()[0];
+                                                                                   if (filename.Equals("")) {
+                                                                                       return "Please provide a filename if you use this option.";
+                                                                                   }
+                                                                                   return null;
+                                                                               }),
                                                        new ParameterDefinition("withbots",
                                                                                ParameterType.Boolean,
                                                                                false,
@@ -52,14 +66,30 @@ namespace EfStats {
                                                                                1,
                                                                                1,
                                                                                true,
-                                                                               "This optional parameter defines the output format. You can choose from 'text', 'csv', 'json' and 'html'. Default is 'html'."),
+                                                                               "This optional parameter defines the output format. You can choose from 'text', 'csv', 'json' and 'html'. Default is 'html'.",
+                                                                               delegate (Parameter p) {
+                                                                                   List<string> allowedOutFormats = new List<string>() {"text", "csv", "html", "json"};
+                                                                                   string outformat = p.getStringValues()[0];
+                                                                                   if (!allowedOutFormats.Contains(outformat)) {
+                                                                                       return "The output format type '" + outformat + "' is unknown.";
+                                                                                   }
+                                                                                   return null;
+                                                                               }),
                                                        new ParameterDefinition("sortorder",
                                                                                ParameterType.String,
                                                                                false,
                                                                                1,
                                                                                1,
                                                                                true,
-                                                                               "This optional parameter defines the value that is used for the ranking. You can choose from 'elo', 'ratio' and 'eff' (efficiency). Default is 'elo'."),
+                                                                               "This optional parameter defines the value that is used for the ranking. You can choose from 'elo', 'ratio' and 'eff' (efficiency). Default is 'elo'.",
+                                                                               delegate(Parameter p) {
+                                                                                   List<string> allowedSortOrders = new List<string>() {"elo", "eff", "ratio"};
+                                                                                   string sortorder = p.getStringValues()[0];
+                                                                                   if (!allowedSortOrders.Contains(sortorder)) {
+                                                                                       return "The sort order type '" + sortorder + "' is unknown.";
+                                                                                   }
+                                                                                   return null;
+                                                                               }),
                                                        new ParameterDefinition("minenc",
                                                                                ParameterType.Uinteger,
                                                                                false,
@@ -92,43 +122,23 @@ namespace EfStats {
                                                    args,
                                                    "EFStats " + Version + ": This program takes a server log file from the game 'Star Trek: Voyager Elite Force', analyses the occuring frags of players and calculates a ranking based on ELO score/K:D-ratio/efficiency of the players, derived by the frag occurences of all involved players. You can set various output formats (text, HTML, JSON, CSV) and if needed, save the results for continuation of the analysis at a later time with an extended log file.",
                                                    true);
-            List<string> allowedOutFormats = new List<string>() {"text", "csv", "html", "json"};
-            List<string> allowedSortOrders = new List<string>() {"elo", "eff", "ratio"};
 
             if (ConsoleParameters.getParameterByName("help").getBoolValue()) {
                 ConsoleParameters.printParameterHelp();
                 Environment.Exit(0);
             }
-            string inputFileName = ConsoleParameters.getParameterByName("inname").getStringValues()[0]; // Required, it has to be here.
-            if (!File.Exists(inputFileName)) {
-                Console.WriteLine("A file with the name '" + inputFileName + "' does not seem to exist. Use --help switch if you require further assistance.");
-                Environment.Exit(1);
-            }
+            string inputFileName = ConsoleParameters.getParameterByName("inname").getStringValues()[0];
             string outputFileName = null;
-            if (ConsoleParameters.getParameterByName("outname").getNumberOfValues() == 1) { // May be present, but does not need to be
+            if (ConsoleParameters.getParameterByName("outname").getNumberOfValues() == 1) {
                 outputFileName = ConsoleParameters.getParameterByName("outname").getStringValues()[0];
             }
 
-            if (   outputFileName != null
-                && outputFileName.Equals("")) {
-                Console.WriteLine("Please provide a filename with --outname. Use --help switch if you require further assistance.");
-                Environment.Exit(3);
-            }
             string outFormat = "html";
             if (ConsoleParameters.getParameterByName("outformat").getNumberOfValues() == 1)
                 outFormat = ConsoleParameters.getParameterByName("outformat").getStringValues()[0];
-            if (!allowedOutFormats.Contains(outFormat)) {
-                Console.WriteLine("The output format type '" + outFormat + "' is unknown. Use --help switch if you require further assistance.");
-                Environment.Exit(2);
-            }
-
             string sortOrder = "elo";
             if (ConsoleParameters.getParameterByName("sortorder").getNumberOfValues() == 1)
                 sortOrder = ConsoleParameters.getParameterByName("sortorder").getStringValues()[0];
-            if (!allowedSortOrders.Contains(sortOrder)) {
-                Console.WriteLine("The output format type '" + outFormat + "' is unknown. Use --help switch if you require further assistance.");
-                Environment.Exit(2);
-            }
             uint minEncounters = 30;
             if (ConsoleParameters.getParameterByName("minenc").getNumberOfValues() == 1)
                 minEncounters = ConsoleParameters.getParameterByName("minenc").getUintegerValues()[0];
