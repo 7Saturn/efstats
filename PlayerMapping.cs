@@ -15,5 +15,9 @@ namespace EfStats {
         public static Player[] getMapping() {
             return players;
         }
+
+        public static void setMapping(Player[] newPlayers) {
+            players = newPlayers;
+        }
     }
 }

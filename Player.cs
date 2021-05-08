@@ -258,23 +258,31 @@ namespace EfStats {
         }
 
         public void addAttack(Incident a) {
+            if (efstats.debug) Console.WriteLine("Adding Attack");
             if (this.attacks.Contains(a)) {
-                foreach (Incident i in this.attacks) if (i.Equals(a)) i.Add();
+                if (efstats.debug) Console.WriteLine("Got that one already.");
+                this.attacks.Find(x => x.Equals(a)).Add();
             }
             else {
+                if (efstats.debug) Console.WriteLine("This one was new.");
                 attacks.Add(a);
                 a.Add();
             }
+            if (efstats.debug) Console.WriteLine("New attack value for " + a.name + ": " + a.counter);
         }
 
         public void addVictim(Incident v) {
+            if (efstats.debug) Console.WriteLine("Adding Victim");
             if (this.victims.Contains(v)) {
-                foreach (Incident i in this.victims) if (i.Equals(v)) i.Add();
+                if (efstats.debug) Console.WriteLine("Got that one already.");
+                this.victims.Find(x => x.Equals(v)).Add();
             }
             else {
+                if (efstats.debug) Console.WriteLine("This one was new.");
                 victims.Add(v);
                 v.Add();
             }
+            if (efstats.debug) Console.WriteLine("New victim value for " + v.name + ": " + v.counter);
         }
 
         private Incident getWorstIncident() {
