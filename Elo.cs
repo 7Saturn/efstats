@@ -11,23 +11,42 @@ namespace EfStats {
         public static uint getEloDiff(Player attacker,
                                       Player victim) {
             double difference;
-            difference = 1 / (1 + Math.Pow(10, ((attacker.getElo() - victim.getElo()) / skillDifferenceScale)));
+            /*
+              The following formular has the following properties:
+              * ELO scores are conservative. They cannot vanish or appear out of nothing.
+                Exception: A new player adds 15000 points to the overall pool.
+                Aside from that, points are only exchanged, never destroyed or created.
+                So the average of all players is always 15000. (If you are missing some points, then that's due to players not being reported for not having the least number of encounters.
+              * The scores converges for equally strong players (which on the everage kill each other equally often)
+                --> Both players will alternate round about +- 76 Points around 15000 (the starting value) if they are playing alone.
+              * The higher the difference of scores, the higher the pentalty for a favoured player (higher ELO score) for loosing and the higher gain for the winning unfavoured player.
+              * Maximum change would be theoretically for a score difference of infinity and the favoured player loosing, resp. zero for the other way around, the favoured player winning.
+                The uint will see to that earlier...
+                So it will converge eventually (e.g. after approximately 1500 rounds of consecutive loosing for 15000 start value of both players) between 9000 and 10000.
+            */
+            difference = 1 / (1 + Math.Pow(10, (Math.Abs(victim.getElo() - attacker.getElo()) / skillDifferenceScale)));
             if (attacker.getElo() >= victim.getElo()) {
+                if (efstats.debug) Console.WriteLine("Attacker was already favoured.");
                 difference = valueChangeScale * difference;
             }
             else {
+                if (efstats.debug) Console.WriteLine("Victim was favoured.");
                 difference = valueChangeScale * (1 - difference);
             }
-            difference *= victim.getElo() / startValue; //Slows down when closing to 0 for the victim, up to the point where there won't be any difference. Do not beat a player to death (=negative score)!
             return (uint) rounded(difference);
         }
 
         public static void updateEloScores(Player attacker,
                                            Player victim) {
+            if (   efstats.debug
+                || efstats.elodetails) Console.Write("" + attacker.getName() + " (" + attacker.getElo()+ ") x " + victim.getName() + " (" + victim.getElo() + ") --> ");
+
             uint difference = getEloDiff(attacker,
                                          victim);
             attacker.setElo(attacker.getElo() + difference);
             victim.setElo(victim.getElo() - difference);
+            if (   efstats.debug
+                || efstats.elodetails) Console.WriteLine(attacker.getName() + " (" + attacker.getElo() + ") / " + victim.getName() + " (" + victim.getElo() + ")");
         }
 
         public static string EloReport(List<Player> allPlayers,
