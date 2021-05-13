@@ -34,8 +34,15 @@ namespace EfStats {
         }
 
         public void Save() {
-            if (efstats.debug) Console.WriteLine("Writing Save to " + saveFileName);
-            string output = JsonConvert.SerializeObject(this, Formatting.Indented);
+            if (efstats.debug){
+                Console.WriteLine("Writing Save to " + saveFileName);
+                Console.WriteLine("---- Dump start ---- ");
+                foreach (Player p in playerList.list) {
+                    if (p != null) Console.WriteLine(p.getDetails(false));
+                }
+                Console.WriteLine("---- Dump end ---- ");
+            }
+            string output = JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings{NullValueHandling = NullValueHandling.Ignore});
             if (efstats.debug) Console.WriteLine(output);
             File.WriteAllLines(saveFileName, new string[] {output});
         }
@@ -49,6 +56,7 @@ namespace EfStats {
                                                  withUnnamed,
                                                  withBots,
                                                  0);
+            if (efstats.debug) Console.WriteLine("Reading Save from " + saveFileName);
             try {
                 tempSaveFile = JsonConvert.DeserializeObject<SaveFile>(lines);
             }
@@ -78,6 +86,13 @@ namespace EfStats {
             this.playerList = tempSaveFile.playerList;
             this.encounters = tempSaveFile.encounters;
             this.numberOfLines = tempSaveFile.numberOfLines;
+            if (efstats.debug){
+                Console.WriteLine("---- Dump start ---- ");
+                foreach (Player p in playerList.list) {
+                    if (p != null) Console.WriteLine(p.getDetails(false));
+                }
+                Console.WriteLine("---- Dump end ---- ");
+            }
         }
     }
     public class FileNotFoundException : System.Exception {
