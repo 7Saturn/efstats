@@ -2,6 +2,7 @@ using System; // Simple WriteLine
 using System.IO; // File
 using System.Collections.Generic; // Lists
 using System.Text.RegularExpressions; // Split
+using CP = ConsoleParameters;
 // uses https://github.com/JamesNK/Newtonsoft.Json
 
 /*
@@ -20,159 +21,159 @@ namespace EfStats {
         public static bool elodetails = false;
         public static uint minEncounters = 100;
         public static void Main(string[] args) {
-            ConsoleParameters.InitializeParameters("--",
-                                                   new ParameterDefinition[] {
-                                                       new ParameterDefinition("inname",
-                                                                               ParameterType.String,
-                                                                               true,
-                                                                               1,
-                                                                               1,
-                                                                               true,
-                                                                               "This defines the name of the input file containing the log data to be analyzed. This parameter is required.",
-                                                                               delegate(Parameter p){
-                                                                                   string filename = p.getStringValues()[0];
-                                                                                   if (!File.Exists(filename)) {
-                                                                                       return "A file with the name '" + filename + "' does not seem to exist.";
-                                                                                   }
-                                                                                   return null;
-                                                                               }),
-                                                       new ParameterDefinition("outname",
-                                                                               ParameterType.String,
-                                                                               false,
-                                                                               1,
-                                                                               1,
-                                                                               true,
-                                                                               "This defines the name of the output file that will contain the analysis results. This parameter is optional. If it is not set, the data is written to STDOUT. Important: Existing files will be overwritten without asking!",
-                                                                               delegate(Parameter p){
-                                                                                   string filename = p.getStringValues()[0];
-                                                                                   if (filename.Equals("")) {
-                                                                                       return "Please provide a filename if you use this option.";
-                                                                                   }
-                                                                                   return null;
-                                                                               }),
-                                                       new ParameterDefinition("withbots",
-                                                                               ParameterType.Boolean,
-                                                                               false,
-                                                                               0,
-                                                                               0,
-                                                                               false,
-                                                                               "By default no bot players are included in the analysis. Setting this switch includes them."),
-                                                       new ParameterDefinition("withunnamed",
-                                                                               ParameterType.Boolean,
-                                                                               false,
-                                                                               0,
-                                                                               0,
-                                                                               false,
-                                                                               "By default no players with the nick names 'Redshirt', 'RedShirt' or 'UnnamedPlayer' are included in the analysis. Those are the standard nick names that the game uses when the player did not change his name. This means, various players use this nick, which will distort the results. Setting this switch includes them anyways."),
-                                                       new ParameterDefinition("statssave",
-                                                                               ParameterType.String,
-                                                                               false,
-                                                                               1,
-                                                                               1,
-                                                                               true,
-                                                                               "Use this parameter to provide a save file name. By default, this program analyses the data from the entire log file and writes the results to the output file (or STDOUT). If you require an analysis of a log file that is being continuosly extended (e. g. the live log file of a running EF server) this filename is used to load the analysis results from the last analysis run, and continue where the last analysis run left off. After the analysis the save file will be updated with the now added new analysis data. If there exists no analysis file under this name already it will be created after analysis and the log analysis starts from the beginning of the log file, first. If you use this feature, you really should consider setting g_logsync = 1 in your EF server's config."),
-                                                       new ParameterDefinition("outformat",
-                                                                               ParameterType.String,
-                                                                               false,
-                                                                               1,
-                                                                               1,
-                                                                               true,
-                                                                               "This optional parameter defines the output format. You can choose from 'text', 'csv', 'json' and 'html'. Default is 'html'.",
-                                                                               delegate (Parameter p) {
-                                                                                   List<string> allowedOutFormats = new List<string>() {"text", "csv", "html", "json"};
-                                                                                   string outformat = p.getStringValues()[0];
-                                                                                   if (!allowedOutFormats.Contains(outformat)) {
-                                                                                       return "The output format type '" + outformat + "' is unknown.";
-                                                                                   }
-                                                                                   return null;
-                                                                               }),
-                                                       new ParameterDefinition("sortorder",
-                                                                               ParameterType.String,
-                                                                               false,
-                                                                               1,
-                                                                               1,
-                                                                               true,
-                                                                               "This optional parameter defines the value that is used for the ranking. You can choose from 'elo', 'ratio' and 'eff' (efficiency). Default is 'elo'.",
-                                                                               delegate(Parameter p) {
-                                                                                   List<string> allowedSortOrders = new List<string>() {"elo", "eff", "ratio"};
-                                                                                   string sortorder = p.getStringValues()[0];
-                                                                                   if (!allowedSortOrders.Contains(sortorder)) {
-                                                                                       return "The sort order type '" + sortorder + "' is unknown.";
-                                                                                   }
-                                                                                   return null;
-                                                                               }),
-                                                       new ParameterDefinition("minenc",
-                                                                               ParameterType.Uinteger,
-                                                                               false,
-                                                                               1,
-                                                                               1,
-                                                                               true,
-                                                                               "This optional parameter defines the minimum number of encounters a player has to be part of (sum of fragging or being fragged) in order to be listed. Default is " + minEncounters + ". This prevents players who just droped by for a few frags and were never heard from again from distorting results. Below a certain number of frags the scoring actually cannot be accurate enough for a reasonable ranking."),
-                                                       new ParameterDefinition("rpe",
-                                                                               ParameterType.Boolean,
-                                                                               false,
-                                                                               0,
-                                                                               0,
-                                                                               false,
-                                                                               "The optional switch Report Parse Errors (rpe) makes the analyzer report problems with the input log file. By default such problems are not reported."),
-                                                       new ParameterDefinition("verbose",
-                                                                               ParameterType.Boolean,
-                                                                               false,
-                                                                               0,
-                                                                               0,
-                                                                               false,
-                                                                               "The optional switch verbose makes EF Stats print some more information during the analysis run."),
-                                                       new ParameterDefinition("debug",
-                                                                               ParameterType.Boolean,
-                                                                               false,
-                                                                               0,
-                                                                               0,
-                                                                               false,
-                                                                               "This prints additional information during stats analysis runs, useful for debugging. Warning: This can be quite extensive, depending on the size of the log file being analyzed. Do not use it in productive scenarios."),
-                                                       new ParameterDefinition("eloreport",
-                                                                               ParameterType.Boolean,
-                                                                               false,
-                                                                               0,
-                                                                               0,
-                                                                               false,
-                                                                               "Setting this switch makes EF Stats additionally print an Elo score probability analysis to STDOUT."),
-                                                       new ParameterDefinition("elodetails",
-                                                                               ParameterType.Boolean,
-                                                                               false,
-                                                                               0,
-                                                                               0,
-                                                                               false,
-                                                                               "Setting this switch makes EF Stats additionally print the Elo score dynamics (changes with every frag) to STDOUT."),
-                                                       new ParameterDefinition("help",
-                                                                               ParameterType.Boolean,
-                                                                               false,
-                                                                               0,
-                                                                               0,
-                                                                               false,
-                                                                               "Prints this help and stops, regardless of the presence of other parameters or values."),
-                                                   },
-                                                   args,
-                                                   "EFStats " + Version + ": This program takes a server log file from the game 'Star Trek: Voyager Elite Force', analyses the occuring frags of players and calculates a ranking based on Elo score/K:D-ratio/efficiency of the players, derived by the frag occurences of all involved players. You can set various output formats (text, HTML, JSON, CSV) and if needed, save the results for continuation of the analysis at a later time with an extended log file.",
-                                                   true);
+            CP.ConsoleParameters.InitializeParameters("--",
+                                                      new CP.ParameterDefinition[] {
+                                                          new CP.ParameterDefinition("inname",
+                                                                                     CP.ParameterType.String,
+                                                                                     true,
+                                                                                     1,
+                                                                                     1,
+                                                                                     true,
+                                                                                     "This defines the name of the input file containing the log data to be analyzed. This parameter is required.",
+                                                                                     delegate(CP.Parameter p){
+                                                                                         string filename = p.getStringValues()[0];
+                                                                                         if (!File.Exists(filename)) {
+                                                                                             return "A file with the name '" + filename + "' does not seem to exist.";
+                                                                                         }
+                                                                                         return null;
+                                                                                     }),
+                                                          new CP.ParameterDefinition("outname",
+                                                                                     CP.ParameterType.String,
+                                                                                     false,
+                                                                                     1,
+                                                                                     1,
+                                                                                     true,
+                                                                                     "This defines the name of the output file that will contain the analysis results. This parameter is optional. If it is not set, the data is written to STDOUT. Important: Existing files will be overwritten without asking!",
+                                                                                     delegate(CP.Parameter p){
+                                                                                         string filename = p.getStringValues()[0];
+                                                                                         if (filename.Equals("")) {
+                                                                                             return "Please provide a filename if you use this option.";
+                                                                                         }
+                                                                                         return null;
+                                                                                     }),
+                                                          new CP.ParameterDefinition("withbots",
+                                                                                     CP.ParameterType.Boolean,
+                                                                                     false,
+                                                                                     0,
+                                                                                     0,
+                                                                                     false,
+                                                                                     "By default no bot players are included in the analysis. Setting this switch includes them."),
+                                                          new CP.ParameterDefinition("withunnamed",
+                                                                                     CP.ParameterType.Boolean,
+                                                                                     false,
+                                                                                     0,
+                                                                                     0,
+                                                                                     false,
+                                                                                     "By default no players with the nick names 'Redshirt', 'RedShirt' or 'UnnamedPlayer' are included in the analysis. Those are the standard nick names that the game uses when the player did not change his name. This means, various players use this nick, which will distort the results. Setting this switch includes them anyways."),
+                                                          new CP.ParameterDefinition("statssave",
+                                                                                     CP.ParameterType.String,
+                                                                                     false,
+                                                                                     1,
+                                                                                     1,
+                                                                                     true,
+                                                                                     "Use this parameter to provide a save file name. By default, this program analyses the data from the entire log file and writes the results to the output file (or STDOUT). If you require an analysis of a log file that is being continuosly extended (e. g. the live log file of a running EF server) this filename is used to load the analysis results from the last analysis run, and continue where the last analysis run left off. After the analysis the save file will be updated with the now added new analysis data. If there exists no analysis file under this name already it will be created after analysis and the log analysis starts from the beginning of the log file, first. If you use this feature, you really should consider setting g_logsync = 1 in your EF server's config."),
+                                                          new CP.ParameterDefinition("outformat",
+                                                                                     CP.ParameterType.String,
+                                                                                     false,
+                                                                                     1,
+                                                                                     1,
+                                                                                     true,
+                                                                                     "This optional parameter defines the output format. You can choose from 'text', 'csv', 'json' and 'html'. Default is 'html'.",
+                                                                                     delegate (CP.Parameter p) {
+                                                                                         List<string> allowedOutFormats = new List<string>() {"text", "csv", "html", "json"};
+                                                                                         string outformat = p.getStringValues()[0];
+                                                                                         if (!allowedOutFormats.Contains(outformat)) {
+                                                                                             return "The output format type '" + outformat + "' is unknown.";
+                                                                                         }
+                                                                                         return null;
+                                                                                     }),
+                                                          new CP.ParameterDefinition("sortorder",
+                                                                                     CP.ParameterType.String,
+                                                                                     false,
+                                                                                     1,
+                                                                                     1,
+                                                                                     true,
+                                                                                     "This optional parameter defines the value that is used for the ranking. You can choose from 'elo', 'ratio' and 'eff' (efficiency). Default is 'elo'.",
+                                                                                     delegate(CP.Parameter p) {
+                                                                                         List<string> allowedSortOrders = new List<string>() {"elo", "eff", "ratio"};
+                                                                                         string sortorder = p.getStringValues()[0];
+                                                                                         if (!allowedSortOrders.Contains(sortorder)) {
+                                                                                             return "The sort order type '" + sortorder + "' is unknown.";
+                                                                                         }
+                                                                                         return null;
+                                                                                     }),
+                                                          new CP.ParameterDefinition("minenc",
+                                                                                     CP.ParameterType.Uinteger,
+                                                                                     false,
+                                                                                     1,
+                                                                                     1,
+                                                                                     true,
+                                                                                     "This optional parameter defines the minimum number of encounters a player has to be part of (sum of fragging or being fragged) in order to be listed. Default is " + minEncounters + ". This prevents players who just droped by for a few frags and were never heard from again from distorting results. Below a certain number of frags the scoring actually cannot be accurate enough for a reasonable ranking."),
+                                                          new CP.ParameterDefinition("rpe",
+                                                                                     CP.ParameterType.Boolean,
+                                                                                     false,
+                                                                                     0,
+                                                                                     0,
+                                                                                     false,
+                                                                                     "The optional switch Report Parse Errors (rpe) makes the analyzer report problems with the input log file. By default such problems are not reported."),
+                                                          new CP.ParameterDefinition("verbose",
+                                                                                     CP.ParameterType.Boolean,
+                                                                                     false,
+                                                                                     0,
+                                                                                     0,
+                                                                                     false,
+                                                                                     "The optional switch verbose makes EF Stats print some more information during the analysis run."),
+                                                          new CP.ParameterDefinition("debug",
+                                                                                     CP.ParameterType.Boolean,
+                                                                                     false,
+                                                                                     0,
+                                                                                     0,
+                                                                                     false,
+                                                                                     "This prints additional information during stats analysis runs, useful for debugging. Warning: This can be quite extensive, depending on the size of the log file being analyzed. Do not use it in productive scenarios."),
+                                                          new CP.ParameterDefinition("eloreport",
+                                                                                     CP.ParameterType.Boolean,
+                                                                                     false,
+                                                                                     0,
+                                                                                     0,
+                                                                                     false,
+                                                                                     "Setting this switch makes EF Stats additionally print an Elo score probability analysis to STDOUT."),
+                                                          new CP.ParameterDefinition("elodetails",
+                                                                                     CP.ParameterType.Boolean,
+                                                                                     false,
+                                                                                     0,
+                                                                                     0,
+                                                                                     false,
+                                                                                     "Setting this switch makes EF Stats additionally print the Elo score dynamics (changes with every frag) to STDOUT."),
+                                                          new CP.ParameterDefinition("help",
+                                                                                     CP.ParameterType.Boolean,
+                                                                                     false,
+                                                                                     0,
+                                                                                     0,
+                                                                                     false,
+                                                                                     "Prints this help and stops, regardless of the presence of other parameters or values."),
+                                                      },
+                                                      args,
+                                                      "EFStats " + Version + ": This program takes a server log file from the game 'Star Trek: Voyager Elite Force', analyses the occuring frags of players and calculates a ranking based on Elo score/K:D-ratio/efficiency of the players, derived by the frag occurences of all involved players. You can set various output formats (text, HTML, JSON, CSV) and if needed, save the results for continuation of the analysis at a later time with an extended log file.",
+                                                      true);
 
-            bool verbose = ConsoleParameters.getParameterByName("verbose").getBoolValue();
-            debug = ConsoleParameters.getParameterByName("debug").getBoolValue();
-            if (ConsoleParameters.getParameterByName("help").getBoolValue()) {
+            bool verbose = CP.ConsoleParameters.getParameterByName("verbose").getBoolValue();
+            debug = CP.ConsoleParameters.getParameterByName("debug").getBoolValue();
+            if (CP.ConsoleParameters.getParameterByName("help").getBoolValue()) {
                 if (verbose) Console.WriteLine("--help switch found");
-                ConsoleParameters.printParameterHelp();
+                CP.ConsoleParameters.printParameterHelp();
                 Environment.Exit(0);
             }
-            string inputFileName = ConsoleParameters.getParameterByName("inname").getStringValues()[0];
+            string inputFileName = CP.ConsoleParameters.getParameterByName("inname").getStringValues()[0];
             if (verbose) Console.WriteLine("File to be analysed: " + inputFileName);
             string outputFileName = null;
-            if (ConsoleParameters.getParameterByName("outname").getNumberOfValues() == 1) {
-                outputFileName = ConsoleParameters.getParameterByName("outname").getStringValues()[0];
+            if (CP.ConsoleParameters.getParameterByName("outname").getNumberOfValues() == 1) {
+                outputFileName = CP.ConsoleParameters.getParameterByName("outname").getStringValues()[0];
                 if (verbose) Console.WriteLine("Destination file for the results: " + outputFileName);
             }
 
             string saveFileName = null;
-            if (ConsoleParameters.getParameterByName("statssave").getNumberOfValues() == 1) {
-                saveFileName = ConsoleParameters.getParameterByName("statssave").getStringValues()[0];
+            if (CP.ConsoleParameters.getParameterByName("statssave").getNumberOfValues() == 1) {
+                saveFileName = CP.ConsoleParameters.getParameterByName("statssave").getStringValues()[0];
                 if (verbose) Console.WriteLine("Stats save file: " + saveFileName);
             }
 
@@ -188,8 +189,8 @@ namespace EfStats {
             }
 
             string outFormat = "html";
-            if (ConsoleParameters.getParameterByName("outformat").getNumberOfValues() == 1) {
-                outFormat = ConsoleParameters.getParameterByName("outformat").getStringValues()[0];
+            if (CP.ConsoleParameters.getParameterByName("outformat").getNumberOfValues() == 1) {
+                outFormat = CP.ConsoleParameters.getParameterByName("outformat").getStringValues()[0];
                 if (verbose) Console.WriteLine ("Requested format: " + outFormat);
             }
             else {
@@ -197,26 +198,26 @@ namespace EfStats {
             }
 
             string sortOrder = "elo";
-            if (ConsoleParameters.getParameterByName("sortorder").getNumberOfValues() == 1) {
-                sortOrder = ConsoleParameters.getParameterByName("sortorder").getStringValues()[0];
+            if (CP.ConsoleParameters.getParameterByName("sortorder").getNumberOfValues() == 1) {
+                sortOrder = CP.ConsoleParameters.getParameterByName("sortorder").getStringValues()[0];
                 if (verbose) Console.WriteLine ("Requested sort order: " + sortOrder);
             }
             else {
                 if (verbose) Console.WriteLine ("Using sort order: " + sortOrder);
             }
-            if (ConsoleParameters.getParameterByName("minenc").getNumberOfValues() == 1) {
-                minEncounters = ConsoleParameters.getParameterByName("minenc").getUintegerValues()[0];
+            if (CP.ConsoleParameters.getParameterByName("minenc").getNumberOfValues() == 1) {
+                minEncounters = CP.ConsoleParameters.getParameterByName("minenc").getUintegerValues()[0];
                 if (verbose) Console.WriteLine ("Using requested number of encounters filter: " + minEncounters);
             }
             else {
                 if (verbose) Console.WriteLine ("Using standard minimal number of encounters filter: " + minEncounters);
             }
 
-            bool withBots = ConsoleParameters.getParameterByName("withbots").getBoolValue();
-            bool withUnnamed = ConsoleParameters.getParameterByName("withunnamed").getBoolValue();
-            bool reportParseErrors = ConsoleParameters.getParameterByName("rpe").getBoolValue();
-            bool eloreport = ConsoleParameters.getParameterByName("eloreport").getBoolValue();
-            elodetails = ConsoleParameters.getParameterByName("elodetails").getBoolValue();
+            bool withBots = CP.ConsoleParameters.getParameterByName("withbots").getBoolValue();
+            bool withUnnamed = CP.ConsoleParameters.getParameterByName("withunnamed").getBoolValue();
+            bool reportParseErrors = CP.ConsoleParameters.getParameterByName("rpe").getBoolValue();
+            bool eloreport = CP.ConsoleParameters.getParameterByName("eloreport").getBoolValue();
+            elodetails = CP.ConsoleParameters.getParameterByName("elodetails").getBoolValue();
 
             if (verbose) {
                 if (withBots) Console.WriteLine ("Including bots into analysis.");
