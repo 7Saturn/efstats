@@ -6,11 +6,11 @@ using System.Globalization;
 
 namespace EfStats {
     public class Player {
-        public uint kills {get; set;} = 0;
-        public uint deaths {get; set;} = 0;
-        public double elo {get; set;} = Elo.startValue;
         public string nickName {get; set;} = "";
         public bool isBot {get; set;} = false;
+        public double elo {get; set;} = Elo.startValue;
+        public uint kills {get; set;} = 0;
+        public uint deaths {get; set;} = 0;
         public uint[] weaponsUsage   {get; set;} = new uint[Weapons.weaponNames.Length]; // See efstats.weaponNames on the meaning of the indizes.
         public uint[] weaponsEndured {get; set;} = new uint[Weapons.weaponNames.Length]; // See efstats.weaponNames on the meaning of the indizes.
         public List<Incident> attacks {get; set;} = new List<Incident>();
@@ -220,7 +220,7 @@ namespace EfStats {
                 + ":Bot=" + isBot
                 + ":K=" + kills
                 + ":D=" + deaths
-                + ":ELO=" + elo
+                + ":Elo=" + elo
                 + used
                 + endured
                 + ":mostUsed=" + mostUsed + "(" + getWeaponUsedMaxCount() + ")"

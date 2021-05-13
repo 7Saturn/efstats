@@ -18,6 +18,7 @@ namespace EfStats {
         public static List<Encounter> encounters = new List<Encounter>();
         public static bool debug = false;
         public static bool elodetails = false;
+        public static uint minEncounters = 100;
         public static void Main(string[] args) {
             ConsoleParameters.InitializeParameters("--",
                                                    new ParameterDefinition[] {
@@ -69,7 +70,7 @@ namespace EfStats {
                                                                                1,
                                                                                1,
                                                                                true,
-                                                                               "Use this parameter to provide a save file name. By default, this program analyses the data from the entire log file and writes the results to the output file (or STDOUT). If you require an analysis of a log file that is being continuosly extended (e. g. the live log file of a running EF server) this filename is used to load the analysis results from the last analysis run, and continue where the last analysis run left off. After the analysis the save file will be updated with the now added new analysis data. If there exists no analysis file under this name already it will be created after analysis and the log analysis starts from the beginning of the log file, first."),
+                                                                               "Use this parameter to provide a save file name. By default, this program analyses the data from the entire log file and writes the results to the output file (or STDOUT). If you require an analysis of a log file that is being continuosly extended (e. g. the live log file of a running EF server) this filename is used to load the analysis results from the last analysis run, and continue where the last analysis run left off. After the analysis the save file will be updated with the now added new analysis data. If there exists no analysis file under this name already it will be created after analysis and the log analysis starts from the beginning of the log file, first. If you use this feature, you really should consider setting g_logsync = 1 in your EF server's config."),
                                                        new ParameterDefinition("outformat",
                                                                                ParameterType.String,
                                                                                false,
@@ -106,7 +107,7 @@ namespace EfStats {
                                                                                1,
                                                                                1,
                                                                                true,
-                                                                               "This optional parameter defines the minimum number of encounters a player has to be part of (sum of fragging or being fragged) in order to be listed. Default is 30. This prevents players who just droped by for a few frags and were never heard from again from distorting results. Below a certain number of frags the scoring actually cannot be accurate enough for a reasonable ranking."),
+                                                                               "This optional parameter defines the minimum number of encounters a player has to be part of (sum of fragging or being fragged) in order to be listed. Default is " + minEncounters + ". This prevents players who just droped by for a few frags and were never heard from again from distorting results. Below a certain number of frags the scoring actually cannot be accurate enough for a reasonable ranking."),
                                                        new ParameterDefinition("rpe",
                                                                                ParameterType.Boolean,
                                                                                false,
@@ -134,14 +135,14 @@ namespace EfStats {
                                                                                0,
                                                                                0,
                                                                                false,
-                                                                               "Setting this switch makes efstats additionally print an ELO score probability analysis to STDOUT."),
+                                                                               "Setting this switch makes EF Stats additionally print an Elo score probability analysis to STDOUT."),
                                                        new ParameterDefinition("elodetails",
                                                                                ParameterType.Boolean,
                                                                                false,
                                                                                0,
                                                                                0,
                                                                                false,
-                                                                               "Setting this switch makes efstats additionally print the ELO score dynamics (changes with every frag) to STDOUT."),
+                                                                               "Setting this switch makes EF Stats additionally print the Elo score dynamics (changes with every frag) to STDOUT."),
                                                        new ParameterDefinition("help",
                                                                                ParameterType.Boolean,
                                                                                false,
@@ -151,7 +152,7 @@ namespace EfStats {
                                                                                "Prints this help and stops, regardless of the presence of other parameters or values."),
                                                    },
                                                    args,
-                                                   "EFStats " + Version + ": This program takes a server log file from the game 'Star Trek: Voyager Elite Force', analyses the occuring frags of players and calculates a ranking based on ELO score/K:D-ratio/efficiency of the players, derived by the frag occurences of all involved players. You can set various output formats (text, HTML, JSON, CSV) and if needed, save the results for continuation of the analysis at a later time with an extended log file.",
+                                                   "EFStats " + Version + ": This program takes a server log file from the game 'Star Trek: Voyager Elite Force', analyses the occuring frags of players and calculates a ranking based on Elo score/K:D-ratio/efficiency of the players, derived by the frag occurences of all involved players. You can set various output formats (text, HTML, JSON, CSV) and if needed, save the results for continuation of the analysis at a later time with an extended log file.",
                                                    true);
 
             bool verbose = ConsoleParameters.getParameterByName("verbose").getBoolValue();
@@ -203,7 +204,6 @@ namespace EfStats {
             else {
                 if (verbose) Console.WriteLine ("Using sort order: " + sortOrder);
             }
-            uint minEncounters = 30;
             if (ConsoleParameters.getParameterByName("minenc").getNumberOfValues() == 1) {
                 minEncounters = ConsoleParameters.getParameterByName("minenc").getUintegerValues()[0];
                 if (verbose) Console.WriteLine ("Using requested number of encounters filter: " + minEncounters);
@@ -222,8 +222,8 @@ namespace EfStats {
                 if (withBots) Console.WriteLine ("Including bots into analysis.");
                 if (withUnnamed) Console.WriteLine ("Allowing all player names.");
                 if (reportParseErrors) Console.WriteLine ("Parsing errors will be reported.");
-                if (eloreport) Console.WriteLine ("At the end there will be a report on the ELO score <-> encounters correlation.");
-                if (elodetails) Console.WriteLine ("During analysis the ELO score changes will be printed to STDOUT.");
+                if (eloreport) Console.WriteLine ("At the end there will be a report on the Elo score <-> encounters correlation.");
+                if (elodetails) Console.WriteLine ("During analysis the Elo score changes will be printed to STDOUT.");
             }
             uint counter = 0;
             uint playerNumber = 1022; //World...
@@ -332,7 +332,7 @@ namespace EfStats {
                                             parseErrorLines.Add(counter + " (player ID unknown): " + line);
                                         }
                                         else {
-                                            if (attackerString.Equals("1022")) { // The map killed the idiot. This is not to be included in ELO. (This would let ELOs go to hell as a result, do not do it! Believe me, I tried...). But still counts as death!
+                                            if (attackerString.Equals("1022")) { // The map killed the idiot. This is not to be included in Elo. (This would let Elos go to hell as a result, do not do it! Believe me, I tried...). But still counts as death!
                                                 if (debug) Console.WriteLine(" World-Kill (suicide with map item)");
                                                 victim.addDeath();
                                                 victim.addWeaponsEndured((uint) weaponNumber);
@@ -464,7 +464,7 @@ namespace EfStats {
                         break;
                 }
                 if (eloreport){
-                    if (debug) Console.WriteLine("Doing ELO report...");
+                    if (debug) Console.WriteLine("Doing Elo report...");
                     Console.WriteLine(Elo.EloReport(list.getList(), encounters, true));
                 }
             }

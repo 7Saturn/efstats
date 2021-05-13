@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace EfStats {
     public static class Elo {
         /*These starting values are a result of empiric research.
-          They just seem to work rather well. ELO scores of different players seem
+          They just seem to work rather well. Elo scores of different players seem
           to be far enough from each other while not spreading the values too much. */
         public static uint startValue = 15000;
         public static uint skillDifferenceScale = 4000;
@@ -13,13 +13,13 @@ namespace EfStats {
             double difference;
             /*
               The following formular has the following properties:
-              * ELO scores are conservative. They cannot vanish or appear out of nothing.
+              * Elo scores are conservative. They cannot vanish or appear out of nothing.
                 Exception: A new player adds 15000 points to the overall pool.
                 Aside from that, points are only exchanged, never destroyed or created.
                 So the average of all players is always 15000. (If you are missing some points, then that's due to players not being reported for not having the least number of encounters.
               * The scores converges for equally strong players (which on the everage kill each other equally often)
                 --> Both players will alternate round about +- 76 Points around 15000 (the starting value) if they are playing alone.
-              * The higher the difference of scores, the higher the pentalty for a favoured player (higher ELO score) for loosing and the higher gain for the winning unfavoured player.
+              * The higher the difference of scores, the higher the pentalty for a favoured player (higher Elo score) for loosing and the higher gain for the winning unfavoured player.
               * Maximum change would be theoretically for a score difference of infinity and the favoured player loosing, resp. zero for the other way around, the favoured player winning.
                 The uint will see to that earlier...
                 So it will converge eventually (e.g. after approximately 1500 rounds of consecutive loosing for 15000 start value of both players) between 9000 and 10000.
