@@ -53,7 +53,14 @@
           <li><a href="#earlyeffects">Effects of Early Frags on the Eventual Score</a></li>
         </ul>
       </li>
-      <li><a href="#reading">OK, But What Can I Read From This?</a>
+      <li><a href="#reading">OK, But What Can I Read From This?</a></li>
+      <li><a href="#licensing">Licensing</a>
+        <ul>
+          <li><a href="#intentions">Intentions</a></li>
+          <li><a href="#njlicense">Newtonsoft Json/Json.NET</a></li>
+          <li><a href="#efstatslicense">EF Stats' License</a></li>
+        </ul>
+      </li>
     </ul>
     <h2 id="introduction">Introduction</h2>
     <p>In 2000 the publisher Activision released Raven Software's first person shooter &raquo;Star Trek: Voyager Elite Force&laquo; (short: EF 1). The basis for this game was the Quake 3 Arena engine. So this is a first person shooter. It is featuring a single player campaign and multiplayer. The latter can be played competitively, of course. All competitive games seem to have one side effect: Players seeking some sort of ranking, indicating how well they handle themselves in the game against others.</p>
@@ -166,6 +173,72 @@
     <p class="image"><img src="probabilities.png" alt="Winning probability in comparison to the Elo score difference"></p>
     <p>This graph's data is taken from an actual long time server log (approximately 9&#8239;000 encounters taken), including bots and unnamed players, but excluding difference occurances which happend less than 5 times. Not surprising, for two players of equal score the probability to win is 50:50, according to the derived linear function. But you can also see, that there is considerable variance from it present. The correlation coefficient of 0.639 clearly shows, that there is a big amount of deviation from that simple linear equation. But the tendency clearly is linear, with some artifacts around 0&#8239;%/100&#8239;%. For a rough estimate, the range around &plusmn;2&#8239;000 around the line seems to be a rather safe zone.</p>
     <p>So when considering the magic number of the difference scale <i>S</i><sub><small>d</small></sub> (= 4&#8239;000) as a measure, then chances of success for both sides vary round about 85&#8239;% for the favored player but can stretch up to around 67&#8239;% to 100&#8239;%. When we compare that with the results from the 10&#8239;%/90&#8239;% tests, then it seems that the real data reduced to the formula seems to fit the simulation values. When you take the 30&#8239;%/70&#8239;% test, the Score difference calculated back via the formula gives you a score difference of roughly 2&#8239;300, which means for starting values of 15&#8239;000 the values 16&#8239;150 and 13&#8239;850. The estimates here seem to fit rather nicely to the simulated ones of 14&#8239;000 and 16&#8239;000.</p>
-    <p>So real players in a far more complex situation give similar results as the simulations, although they are a lot more noisy when plotted. So one can assume that the formula <b>0.0086&#8239;% x Score difference + 50&#8239;%</b> is a rather good estimate of winning chances.
+    <p>So real players in a far more complex situation give similar results as the simulations, although they are a lot more noisy when plotted. So one can assume that the formula <b>0.0086&#8239;% x Score difference + 50&#8239;%</b> is a rather good estimate of winning chances.</p>
+    <h2 id="licensing">Licensing</h2>
+    <p>EF Stats comes with a license of its own but also uses the third party library <i>Json.NET</i>. If you want to know more about the latter, feel free to visit <a href="https://www.newtonsoft.com/json">https://www.newtonsoft.com/json</a> or <a href="https://github.com/JamesNK/Newtonsoft.Json">https://github.com/JamesNK/Newtonsoft.Json</a>. A big thanks goes out to James Newton-King and contributors. Your library really saves a lot of time, and this way makes nice other projects a lot more feasible! =)</p>
+    <h3 id="intentions">Intentions</h3>
+    <p>A note on the intentions of the licensing: I (Martin Wohlauer, the first author on this projet) don't believe in limiting the use of a piece of software in a generalized manner. Most if not all problems with a certain use of a piece of software are in fact based in social problems. Be it a lack of distribution of wealth, preventing a decent living by the community for some. In my humble opinion, licensing fees are meant to prevent developers (the guys who do the actual work) from being taken advantage of. But are license-fees the only way to ensure their well-being? Be it the use for military purposes (nobody <i>needs</i> a war, but some <i>do</i> profit from it in our systems; don't let <i>them</i> get you into that kind of shittery. Software use for military purposes will be obsolet this way anyways!</p>
+    <p>Or other problems of that kind: It's not <i>the software's</i> fault, that people do crappy things to each other (or let others fall into dark pits or not helping them out of them). <i>Everyone</i> has a responsibility for what what he or she is doing, also with regards of the needs of the others. Actually there is enough for everybody's needs. But not for everybody's greed. Therefore a license should never be about accumulating huge amounts of wealth by means of a software product or preventing progress for others.</p>
+    <p>(I'm looking at you, Google, Amazon, Microsoft, Facebook, and all the other likes, that make <i>Billions</i>, pounding competitors with patent stuff into oblivion, while there are people starving in the countries that use your stuff. You <i>do</i> have enough and if others might do the job better than you with that knowledge and technology, then maybe you should work on some progress for yourself, instead of trying to prevent the progress of others.)</p>
+    <p>I believe that progress is only made when people cooperate and when individuals are allowed to create that progress freely. A health competition will help that progress pick up pace. That's always with the one limitation, to not hurt the others (or their basis for existing and thriving) in the process. No, dumping a lot of toxic waste may create progress for a while (mostly will it be progress on the bank account for single individuals...), but overall will most likely ensure a step backwards on a very basic matter, simple survivle for the others. No, paying your workers a tiny wage may help your share holders to gain another million, but it's still not progress <i>for the community</i>.</p>
+    <p>So for a piece of software that creates progress (and be it a log analyzer of a game that's more than 20 years old by now) I don't want to limit further progress. And I don't want to prevent anyone to make a living on it, if that person contributes to the overall gain of society, either. But I <i>do</i> feel it is only fair, to at least mention the people who contributed to the basis for that progress. So the author(s) of this software should be mentioned at a not so hidden place within the project (like this read-me). It's like naming the guy how came up with a certain research result, just not as academic. ;-) Do it! If they helped you make progress, be so fair to name this fact. But aside from that, use the software, improve it, maybe even make money from it. Just as long as you are not getting in the way of the well-being of others by it.</p>
+    <h3 id="njlicense">Newtonsoft Json/Json.NET</h3>
+    <p>The MIT License (MIT)</p>
+    <p>Copyright (c) 2007 James Newton-King</p>
+    <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+    <p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+    <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+    <h3 id="efstatslicense">EF Stats' License</h3>
+    <p>This software is released under the <i>GNU Lesser General Public License version 3</i>. It also covers this read-me and the graphics used within it (this file). The full text is provided below:</p>
+    <p>GNU LESSER GENERAL PUBLIC LICENSE</p>
+    <p>Version 3, 29 June 2007</p>
+    <p>Copyright (C) 2007 Free Software Foundation, Inc. &lt;<a href="http://fsf.org/">http://fsf.org/</a>&gt;</p>
+    <p>Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.</p>
+    <p>This version of the GNU Lesser General Public License incorporates the terms and conditions of version 3 of the GNU General Public License, supplemented by the additional permissions listed below.</p>
+    <h4>0. Additional Definitions.</h4>
+    <p>As used herein, “this License” refers to version 3 of the GNU Lesser General Public License, and the “GNU GPL” refers to version 3 of the GNU General Public License.</p>
+    <p>“The Library” refers to a covered work governed by this License, other than an Application or a Combined Work as defined below.</p>
+    <p>An “Application” is any work that makes use of an interface provided by the Library, but which is not otherwise based on the Library. Defining a subclass of a class defined by the Library is deemed a mode of using an interface provided by the Library.</p>
+    <p>A “Combined Work” is a work produced by combining or linking an Application with the Library. The particular version of the Library with which the Combined Work was made is also called the “Linked Version”.</p>
+    <p>The “Minimal Corresponding Source” for a Combined Work means the Corresponding Source for the Combined Work, excluding any source code for portions of the Combined Work that, considered in isolation, are based on the Application, and not on the Linked Version.</p>
+    <p>The “Corresponding Application Code” for a Combined Work means the object code and/or source code for the Application, including any data and utility programs needed for reproducing the Combined Work from the Application, but excluding the System Libraries of the Combined Work.</p>
+    <h4>1. Exception to Section 3 of the GNU GPL.</h4>
+    <p>You may convey a covered work under sections 3 and 4 of this License without being bound by section 3 of the GNU GPL.</p>
+    <h4>2. Conveying Modified Versions.</h4>
+    <p>If you modify a copy of the Library, and, in your modifications, a facility refers to a function or data to be supplied by an Application that uses the facility (other than as an argument passed when the facility is invoked), then you may convey a copy of the modified version:</p>
+    <ul>
+      <li>a) under this License, provided that you make a good faith effort to ensure that, in the event an Application does not supply the function or data, the facility still operates, and performs whatever part of its purpose remains meaningful, or</li>
+      <li>b) under the GNU GPL, with none of the additional permissions of this License applicable to that copy.</li>
+    </ul>
+    <h4>3. Object Code Incorporating Material from Library Header Files.</h4>
+    <p>The object code form of an Application may incorporate material from a header file that is part of the Library. You may convey such object code under terms of your choice, provided that, if the incorporated material is not limited to numerical parameters, data structure layouts and accessors, or small macros, inline functions and templates (ten or fewer lines in length), you do both of the following:</p>
+    <ul>
+      <li>a) Give prominent notice with each copy of the object code that the Library is used in it and that the Library and its use are covered by this License.</li>
+      <li>b) Accompany the object code with a copy of the GNU GPL and this license document.</li>
+    </ul>
+    <h4>4. Combined Works.</h4>
+    <p>You may convey a Combined Work under terms of your choice that, taken together, effectively do not restrict modification of the portions of the Library contained in the Combined Work and reverse engineering for debugging such modifications, if you also do each of the following:</p>
+    <ul>
+      <li>a) Give prominent notice with each copy of the Combined Work that the Library is used in it and that the Library and its use are covered by this License.</li>
+      <li>b) Accompany the Combined Work with a copy of the GNU GPL and this license document.</li>
+      <li>c) For a Combined Work that displays copyright notices during execution, include the copyright notice for the Library among these notices, as well as a reference directing the user to the copies of the GNU GPL and this license document.</li>
+      <li>d) Do one of the following:
+        <ul>
+          <li>0) Convey the Minimal Corresponding Source under the terms of this License, and the Corresponding Application Code in a form suitable for, and under terms that permit, the user to recombine or relink the Application with a modified version of the Linked Version to produce a modified Combined Work, in the manner specified by section 6 of the GNU GPL for conveying Corresponding Source.</li>
+          <li>1) Use a suitable shared library mechanism for linking with the Library. A suitable mechanism is one that (a) uses at run time a copy of the Library already present on the user's computer system, and (b) will operate properly with a modified version of the Library that is interface-compatible with the Linked Version.</li>
+        </ul>
+      </li>
+      <li>e) Provide Installation Information, but only if you would otherwise be required to provide such information under section 6 of the GNU GPL, and only to the extent that such information is necessary to install and execute a modified version of the Combined Work produced by recombining or relinking the Application with a modified version of the Linked Version. (If you use option 4d0, the Installation Information must accompany the Minimal Corresponding Source and Corresponding Application Code. If you use option 4d1, you must provide the Installation Information in the manner specified by section 6 of the GNU GPL for conveying Corresponding Source.)</li>
+    </ul>
+    <h4>5. Combined Libraries.</h4>
+    <p>You may place library facilities that are a work based on the Library side by side in a single library together with other library facilities that are not Applications and are not covered by this License, and convey such a combined library under terms of your choice, if you do both of the following:</p>
+    <ul>
+      <li>a) Accompany the combined library with a copy of the same work based on the Library, uncombined with any other library facilities, conveyed under the terms of this License.</li>
+      <li>b) Give prominent notice with the combined library that part of it is a work based on the Library, and explaining where to find the accompanying uncombined form of the same work.</li>
+    </ul>
+    <h4>6. Revised Versions of the GNU Lesser General Public License.</h4>
+    <p>The Free Software Foundation may publish revised and/or new versions of the GNU Lesser General Public License from time to time. Such new versions will be similar in spirit to the present version, but may differ in detail to address new problems or concerns.</p>
+    <p>Each version is given a distinguishing version number. If the Library as you received it specifies that a certain numbered version of the GNU Lesser General Public License “or any later version” applies to it, you have the option of following the terms and conditions either of that published version or of any later version published by the Free Software Foundation. If the Library as you received it does not specify a version number of the GNU Lesser General Public License, you may choose any version of the GNU Lesser General Public License ever published by the Free Software Foundation.</p>
+    <p>If the Library as you received it specifies that a proxy can decide whether future versions of the GNU Lesser General Public License shall apply, that proxy's public statement of acceptance of any version is permanent authorization for you to choose that version for the Library.</p>
   </body>
 </html>
