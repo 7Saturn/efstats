@@ -1,20 +1,24 @@
-all : efstats.exe efstats.zip
+all : build/efstats.exe build/efstats.zip readme/
 ifeq ($(OS),Windows_NT)
-efstats.exe : efstats.cs Player.cs PlayerList.cs PlayerMapping.cs Elo.cs Weapons.cs Encounter.cs Csv.cs Newtonsoft.Json.dll Incident.cs ConsoleParameters\\ConsoleParameters.cs ConsoleParameters\\Parameter.cs ConsoleParameters\\ParameterDefinition.cs SaveFile.cs
-	C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\csc.exe -out:efstats.exe -r:Newtonsoft.Json.dll ConsoleParameters\\ConsoleParameters.cs ConsoleParameters\\Parameter.cs ConsoleParameters\\ParameterDefinition.cs efstats.cs Player.cs PlayerList.cs PlayerMapping.cs Elo.cs Weapons.cs Encounter.cs Incident.cs Csv.cs SaveFile.cs
+build/efstats.exe : efstats.cs Player.cs PlayerList.cs PlayerMapping.cs Elo.cs Weapons.cs Encounter.cs Csv.cs Newtonsoft.Json.dll Incident.cs ConsoleParameters\\ConsoleParameters.cs ConsoleParameters\\Parameter.cs ConsoleParameters\\ParameterDefinition.cs SaveFile.cs
+	C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\csc.exe -out:build\\efstats.exe -r:Newtonsoft.Json.dll ConsoleParameters\\ConsoleParameters.cs ConsoleParameters\\Parameter.cs ConsoleParameters\\ParameterDefinition.cs efstats.cs Player.cs PlayerList.cs PlayerMapping.cs Elo.cs Weapons.cs Encounter.cs Incident.cs Csv.cs SaveFile.cs
 clean:
-	if exist efstats.exe del efstats.exe
-	if exist efstats.zip del efstats.zip
-efstats.zip : efstats.exe Newtonsoft.Json.dll
-	tar -cf efstats.zip efstats.exe Newtonsoft.Json.dll
+	if exist build\efstats.exe del build\efstats.exe
+	if exist build\Newtonsoft.Json.dll del build\Newtonsoft.Json.dll
+	if exist build\efstats.zip del build\efstats.zip
+efstats.zip : build/efstats.exe Newtonsoft.Json.dll
+	copy Newtonsoft.Json.dll build\\
+	tar -cf build\\efstats.zip build\\efstats.exe build\\Newtonsoft.Json.dll readme\\
 else
-efstats.exe : efstats.cs Player.cs PlayerList.cs PlayerMapping.cs Elo.cs Weapons.cs Encounter.cs Newtonsoft.Json.dll Incident.cs Csv.cs ConsoleParameters/ConsoleParameters.cs ConsoleParameters/Parameter.cs ConsoleParameters/ParameterDefinition.cs SaveFile.cs
-	mcs -out:efstats.exe -r:Newtonsoft.Json.dll ConsoleParameters/ConsoleParameters.cs ConsoleParameters/Parameter.cs ConsoleParameters/ParameterDefinition.cs efstats.cs Player.cs PlayerList.cs PlayerMapping.cs Elo.cs Weapons.cs Encounter.cs Incident.cs Csv.cs SaveFile.cs
+build/efstats.exe : efstats.cs Player.cs PlayerList.cs PlayerMapping.cs Elo.cs Weapons.cs Encounter.cs Newtonsoft.Json.dll Incident.cs Csv.cs ConsoleParameters/ConsoleParameters.cs ConsoleParameters/Parameter.cs ConsoleParameters/ParameterDefinition.cs SaveFile.cs
+	mcs -out:build/efstats.exe -r:Newtonsoft.Json.dll ConsoleParameters/ConsoleParameters.cs ConsoleParameters/Parameter.cs ConsoleParameters/ParameterDefinition.cs efstats.cs Player.cs PlayerList.cs PlayerMapping.cs Elo.cs Weapons.cs Encounter.cs Incident.cs Csv.cs SaveFile.cs
 clean:
-	rm -f efstats.exe
-	rm -f efstats.zip
-efstats.zip : efstats.exe Newtonsoft.Json.dll
-	zip -9 efstats.zip efstats.exe Newtonsoft.Json.dll
+	rm -f build/efstats.exe
+	rm -f build/Newtonsoft.Json.dll
+	rm -f build/efstats.zip
+build/efstats.zip : build/efstats.exe Newtonsoft.Json.dll readme/
+	cp Newtonsoft.Json.dll build/
+	cd build && rm -f efstats.zip && zip -9 -r efstats.zip efstats.exe Newtonsoft.Json.dll ../readme/
 endif
 pull:
 	cd ConsoleParameters; git submodule update --remote --recursive; cd ..
