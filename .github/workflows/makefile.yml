@@ -1,18 +1,33 @@
-name: Makefile CI
+name: Build
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ master ]
+    branches: actions
   pull_request:
-    branches: [ master ]
+    branches: actions
+  release:
+    types: [created]
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
+  linux:
+    name: Build ${{ matrix.platform }} ${{ matrix.arch }}, ${{ matrix.build_type }}
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
     steps:
     - uses: actions/checkout@v2
-    
-    - name: Install dependencies
+      with:
+        submodules: true
+        fetch-depth: 0
+    - name: Update system
+      run: |
+        sudo apt-get update
+    - name: Install dependencies (x86)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y monodevelop
+    - name: Build
+      shell: bash
       run: make
+
