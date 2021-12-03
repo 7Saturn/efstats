@@ -50,6 +50,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               name: filename,
-              data: await fs.readFile( "${{github.workspace}}/build/efstats.zip" )
+              data: await fs.readFile( "${{github.workspace}}/../build/efstats.zip" )
             }
           );
