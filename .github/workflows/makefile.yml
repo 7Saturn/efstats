@@ -11,7 +11,7 @@ on:
 
 jobs:
   linux:
-    name: Build ${{ matrix.platform }} ${{ matrix.arch }}, ${{ matrix.build_type }}
+    name: Build
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
@@ -21,6 +21,10 @@ jobs:
     - name: Update system
       run: |
         sudo apt-get update
+        sudo apt install apt-transport-https dirmngr
+        sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+        echo "deb https://download.mono-project.com/repo/ubuntu focal main" | sudo tee /etc/apt/sources.list.d/mono-official-vs.list
+        sudo apt update
     - name: Install dependencies (x86)
       run: |
         sudo apt-get update
@@ -28,4 +32,3 @@ jobs:
     - name: Build
       shell: bash
       run: make
-
