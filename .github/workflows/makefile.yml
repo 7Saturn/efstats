@@ -34,4 +34,8 @@ jobs:
     - name: Build
       shell: bash
       run: make
-
+    - uses: 'actions/upload-artifact@v2'
+      with:
+        name: Release
+        path: |
+          ${{github.workspace}}/build/efstats.zip
