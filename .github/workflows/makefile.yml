@@ -13,8 +13,6 @@ jobs:
   linux:
     name: Build ${{ matrix.platform }} ${{ matrix.arch }}, ${{ matrix.build_type }}
     runs-on: ubuntu-20.04
-    strategy:
-      matrix:
     steps:
     - uses: actions/checkout@v2
       with:
