@@ -44,14 +44,13 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-              const fs = require('fs').promises;
-              await github.repos.uploadReleaseAsset(
-                {
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  release_id: ${{ github.event.release.id }},
-                  name: filename,
-                  data: await fs.readFile( "${{github.workspace}}/build/efstats.zip" )
-                }
-              );
-
+          const fs = require('fs').promises;
+          await github.repos.uploadReleaseAsset(
+            {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ github.event.release.id }},
+              name: filename,
+              data: await fs.readFile( filename )
+            }
+          );
