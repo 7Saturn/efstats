@@ -39,3 +39,17 @@ jobs:
         name: Release
         path: |
           ${{github.workspace}}/build/efstats.zip
+    - name: Upload Release
+      uses: actions/github-script@v4
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+              await github.repos.uploadReleaseAsset(
+                {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: ${{ github.event.release.id }},
+                  name: filename,
+                  data: await fs.readFile( "${{github.workspace}}/build/efstats.zip" )
+                }
+              );
