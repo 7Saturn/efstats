@@ -45,11 +45,17 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const fs = require('fs').promises;
-          await github.repos.uploadReleaseAsset(
+          for ( let filename of await fs.readdir('${{github.workspace}}/build/') )
+          {
+            if ( filename.endsWith('.zip') )
             {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: filename,
-              data: await fs.readFile( "${{github.workspace}}/../build/efstats.zip" )
+              await github.repos.uploadReleaseAsset(
+                {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: filename,
+                  data: await fs.readFile( "${{github.workspace}}/build/" + filename )
+                }
+              );
             }
-          );
+          }
