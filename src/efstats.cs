@@ -14,8 +14,8 @@ Ideas for improvement/expansion:
 
 namespace EfStats {
     public static class efstats {
-        public static readonly string Version = "0.1.2";
-        public static readonly uint saveFileRevision = 1;
+        public static readonly string Version = "0.1.3";
+        public static readonly uint saveFileRevision = 2;
         public static List<Encounter> encounters = new List<Encounter>();
         public static bool debug = false;
         public static bool elodetails = false;

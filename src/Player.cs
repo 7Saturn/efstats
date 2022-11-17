@@ -8,17 +8,19 @@ namespace EfStats {
     public class Player {
         public string nickName {get; set;} = "";
         public bool isBot {get; set;} = false;
-        public double elo {get; set;} = Elo.startValue;
+        public double elo {get; set;} = 0;
         public uint kills {get; set;} = 0;
         public uint deaths {get; set;} = 0;
         public uint[] weaponsUsage   {get; set;} = new uint[Weapons.weaponNames.Length]; // See efstats.weaponNames on the meaning of the indizes.
         public uint[] weaponsEndured {get; set;} = new uint[Weapons.weaponNames.Length]; // See efstats.weaponNames on the meaning of the indizes.
         public List<Incident> attacks {get; set;} = new List<Incident>();
         public List<Incident> victims {get; set;} = new List<Incident>();
+        public List<uint> history {get; set;} = new List<uint>();
         public Player(string newNickName,
                       bool newIsBot) {
             this.nickName = newNickName;
             this.isBot = newIsBot;
+            this.setElo(Elo.startValue); // Ensures, that the history starts with start value.
         }
 
         public string getName() {
@@ -70,6 +72,7 @@ namespace EfStats {
         }
 
         public void setElo(double newElo) {
+            history.Add((uint)newElo);
             this.elo = newElo;
         }
 
